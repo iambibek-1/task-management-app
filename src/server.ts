@@ -1,5 +1,5 @@
 // Import the 'express' module along with 'Request' and 'Response' types from express
-import express, { Application, Request, Response } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 
 // Create an Express application
 const app:Application = express();
@@ -14,10 +14,12 @@ Database.connection();
 //Routes
 app.use("/api/v1", router);
 
-// Define a route for the root path ('/')
-app.get('/', (req: Request, res: Response) => {
-  // Send a response to the client
-  res.send('Hello, TypeScript + Node.js + Express!');
+//Error handling middleware
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: err.message,
+  });
 });
 
 // Start the server and listen on the specified port
