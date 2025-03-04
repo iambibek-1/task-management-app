@@ -3,6 +3,14 @@ import { UserInterface, InputUserInterface } from '../interfaces';
 
 
 export class UserService{
+    public async findOne(email:string):Promise<UserInterface | null>{
+        const data = await Models.User.findOne({
+            where:{
+                email:email,
+            },
+        });
+        return data;
+    }
     public async findAll():Promise<any>{
         const data = await Models.User.findAll();
         return data;
