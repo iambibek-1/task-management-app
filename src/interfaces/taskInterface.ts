@@ -7,7 +7,7 @@ export interface InputTaskInterface{
     title:string;
     description:string;
     status:StatusEnum;
-    prior:PriorEnum;
+    priority:PriorEnum;
 }
 export interface TaskInterface extends InputTaskInterface{
     id: number;
