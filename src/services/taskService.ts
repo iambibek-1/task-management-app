@@ -42,6 +42,7 @@ export class TaskService {
           priority: priority,
         },
       });
+      return data;
     } catch (error) {
       console.log("Error fetching task", error);
     }

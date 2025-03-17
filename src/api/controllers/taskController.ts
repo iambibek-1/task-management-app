@@ -17,12 +17,12 @@ export class TaskController {
     public static async getTaskByPriority(req:Request, res:Response): Promise<Response>{
         const priority = req.params.priority as PriorEnum;
          const tasks = await new TaskService().getTaskByPriority(priority);
-    
+    // console.log(priority);
     if (!tasks) {
         return res.status(404).json({
           success: false,
           status: 404,
-          message: `Tasks with this :${priority} are not found`,
+          message: `Tasks with :${priority} priority are not found`,
         });
       }
       return res.status(200).json({
