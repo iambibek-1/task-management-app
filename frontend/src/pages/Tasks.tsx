@@ -4,7 +4,7 @@ import type { Task, CreateTaskData } from '../services/taskService';
 import { Modal } from '../components/Modal';
 import { Notification } from '../components/Notification';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { Plus, Edit2, Trash2, Filter } from 'lucide-react';
+import { Plus, Edit2, Trash2, Filter, CheckCircle } from 'lucide-react';
 
 export const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -106,6 +106,16 @@ export const Tasks = () => {
       setNotification({ message: response.error, type: 'error' });
     } else {
       setNotification({ message: 'Task deleted successfully!', type: 'success' });
+      loadTasks();
+    }
+  };
+
+  const handleComplete = async (taskId: number, taskTitle: string) => {
+    const response = await taskService.completeTask(taskId);
+    if (response.error) {
+      setNotification({ message: response.error, type: 'error' });
+    } else {
+      setNotification({ message: `"${taskTitle}" marked as completed!`, type: 'success' });
       loadTasks();
     }
   };
@@ -220,6 +230,15 @@ export const Tasks = () => {
               <div className="card-header">
                 <h3>{task.title}</h3>
                 <div className="card-actions">
+                  {task.status !== 'completed' && (
+                    <button 
+                      onClick={() => handleComplete(task.id, task.title)} 
+                      className="btn-icon btn-success" 
+                      title="Mark as Complete"
+                    >
+                      <CheckCircle size={18} />
+                    </button>
+                  )}
                   <button onClick={() => openModal(task)} className="btn-icon" title="Edit">
                     <Edit2 size={18} />
                   </button>

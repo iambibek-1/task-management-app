@@ -103,4 +103,32 @@ export class TaskController {
             message:"Task deleted successfully",
         })
     }
+
+    public static async completeTask (req:Request, res:Response): Promise<Response>{
+        const id = parseInt(req.params.id);
+        
+        try {
+            const updated = await new TaskService().completeTask(id);
+            
+            if(updated === false){
+                return res.status(404).json({
+                    success: false,
+                    status: 404,
+                    message: `Task with id ${id} not found`,
+                });
+            }
+            
+            return res.status(200).json({
+                success:true,
+                status:200,
+                message:"Task marked as completed successfully",
+            });
+        } catch (error: any) {
+            return res.status(500).json({
+                success: false,
+                status: 500,
+                message: error.message || `Could not complete task with id ${id}`,
+            });
+        }
+    }
 }

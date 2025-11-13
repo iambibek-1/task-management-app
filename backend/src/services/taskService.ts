@@ -117,4 +117,20 @@ export class TaskService {
       console.log("Error fetching task", error);
     }
   }
+
+  public async completeTask(id: number): Promise<boolean> {
+    // Check if task exists first
+    const existingTask = await Models.Task.findByPk(id);
+    if (!existingTask) {
+      return false;
+    }
+
+    // Update task status to completed
+    await Models.Task.update(
+      { status: 'completed' as any },
+      { where: { id: id } }
+    );
+    
+    return true;
+  }
 }

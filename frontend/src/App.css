@@ -1269,6 +1269,22 @@ body {
   color: #dc2626;
 }
 
+.btn-icon.btn-success {
+  color: #10b981;
+  background: transparent;
+  transition: var(--transition);
+}
+
+.btn-icon.btn-success:hover {
+  background: #d1fae5;
+  color: #059669;
+  transform: scale(1.1);
+}
+
+.btn-icon.btn-success svg {
+  color: #10b981;
+}
+
 /* Responsive Confirm Dialog */
 @media (max-width: 480px) {
   .confirm-dialog {

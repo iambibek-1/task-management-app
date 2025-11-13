@@ -94,6 +94,64 @@ taskRoutes.post('/',exceptionHandler(TaskController.postTask));
 
 /**
  * @swagger
+ * /task/priority/{priority}:
+ *   get:
+ *     summary: Get tasks by priority
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: priority
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [low, medium, high]
+ *         description: Task priority
+ *     responses:
+ *       200:
+ *         description: Tasks fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Task'
+ */
+taskRoutes.get('/priority/:priority',exceptionHandler(TaskController.getTaskByPriority));
+
+/**
+ * @swagger
+ * /task/{id}/complete:
+ *   patch:
+ *     summary: Mark a task as completed
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Task ID
+ *     responses:
+ *       200:
+ *         description: Task marked as completed successfully
+ */
+taskRoutes.patch('/:id/complete',exceptionHandler(TaskController.completeTask));
+
+/**
+ * @swagger
  * /task/{id}:
  *   put:
  *     summary: Update a task
@@ -161,42 +219,5 @@ taskRoutes.put('/:id',exceptionHandler(TaskController.updateTask));
  *         description: Task deleted successfully
  */
 taskRoutes.delete('/:id',exceptionHandler(TaskController.deleteTask));
-
-/**
- * @swagger
- * /task/priority/{priority}:
- *   get:
- *     summary: Get tasks by priority
- *     tags: [Tasks]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: priority
- *         required: true
- *         schema:
- *           type: string
- *           enum: [low, medium, high]
- *         description: Task priority
- *     responses:
- *       200:
- *         description: Tasks fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 status:
- *                   type: integer
- *                 message:
- *                   type: string
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Task'
- */
-taskRoutes.get('/priority/:priority',exceptionHandler(TaskController.getTaskByPriority));
 
 export default taskRoutes;

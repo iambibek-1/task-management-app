@@ -80,6 +80,10 @@ export const taskService = {
     return api.delete(`/task/${id}`);
   },
 
+  async completeTask(id: number) {
+    return api.patch(`/task/${id}/complete`, {});
+  },
+
   async bulkUpdateTasks(ids: number[], data: UpdateTaskData) {
     return api.post('/task/bulk-update', { ids, data });
   },
