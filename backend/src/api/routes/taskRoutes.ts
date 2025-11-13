@@ -1,9 +1,12 @@
 import { Router } from "express";
 import { TaskController } from "../controllers";
-import { exceptionHandler } from "../../middlewares";
+import { exceptionHandler, Guard } from "../../middlewares";
 
 
 const taskRoutes = Router();
+
+// All task routes require authentication
+taskRoutes.use(Guard.authenticate);
 
 /**
  * @swagger
@@ -38,7 +41,7 @@ taskRoutes.get('/',exceptionHandler(TaskController.getTask));
  * @swagger
  * /task:
  *   post:
- *     summary: Create a new task
+ *     summary: Create a new task (Admin only)
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
@@ -90,7 +93,7 @@ taskRoutes.get('/',exceptionHandler(TaskController.getTask));
  *                 data:
  *                   $ref: '#/components/schemas/Task'
  */
-taskRoutes.post('/',exceptionHandler(TaskController.postTask));
+taskRoutes.post('/', Guard.requireAdmin, exceptionHandler(TaskController.postTask));
 
 /**
  * @swagger
@@ -148,13 +151,13 @@ taskRoutes.get('/priority/:priority',exceptionHandler(TaskController.getTaskByPr
  *       200:
  *         description: Task marked as completed successfully
  */
-taskRoutes.patch('/:id/complete',exceptionHandler(TaskController.completeTask));
+taskRoutes.patch('/:id/complete', exceptionHandler(TaskController.completeTask));
 
 /**
  * @swagger
  * /task/{id}:
  *   put:
- *     summary: Update a task
+ *     summary: Update a task (Admin only)
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
@@ -197,13 +200,13 @@ taskRoutes.patch('/:id/complete',exceptionHandler(TaskController.completeTask));
  *       200:
  *         description: Task updated successfully
  */
-taskRoutes.put('/:id',exceptionHandler(TaskController.updateTask));
+taskRoutes.put('/:id', Guard.requireAdmin, exceptionHandler(TaskController.updateTask));
 
 /**
  * @swagger
  * /task/{id}:
  *   delete:
- *     summary: Delete a task
+ *     summary: Delete a task (Admin only)
  *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
@@ -218,6 +221,6 @@ taskRoutes.put('/:id',exceptionHandler(TaskController.updateTask));
  *       200:
  *         description: Task deleted successfully
  */
-taskRoutes.delete('/:id',exceptionHandler(TaskController.deleteTask));
+taskRoutes.delete('/:id', Guard.requireAdmin, exceptionHandler(TaskController.deleteTask));
 
 export default taskRoutes;

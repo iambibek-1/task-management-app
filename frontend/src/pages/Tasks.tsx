@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { taskService } from '../services/taskService';
 import type { Task, CreateTaskData } from '../services/taskService';
+import { authService } from '../services/authService';
 import { Modal } from '../components/Modal';
 import { Notification } from '../components/Notification';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -19,6 +20,9 @@ export const Tasks = () => {
     taskId: null,
     taskTitle: '',
   });
+  
+  const currentUser = authService.getCurrentUser();
+  const isAdmin = currentUser?.role === 'admin';
   const [formData, setFormData] = useState<CreateTaskData>({
     title: '',
     description: '',
@@ -194,11 +198,13 @@ export const Tasks = () => {
       )}
 
       <div className="page-header">
-        <h1>Tasks</h1>
-        <button onClick={() => openModal()} className="btn btn-primary">
-          <Plus size={20} />
-          Add Task
-        </button>
+        <h1>{isAdmin ? 'All Tasks' : 'My Tasks'}</h1>
+        {isAdmin && (
+          <button onClick={() => openModal()} className="btn btn-primary">
+            <Plus size={20} />
+            Add Task
+          </button>
+        )}
       </div>
 
       <div className="filter-bar">
@@ -239,12 +245,16 @@ export const Tasks = () => {
                       <CheckCircle size={18} />
                     </button>
                   )}
-                  <button onClick={() => openModal(task)} className="btn-icon" title="Edit">
-                    <Edit2 size={18} />
-                  </button>
-                  <button onClick={() => openDeleteConfirm(task)} className="btn-icon btn-danger" title="Delete">
-                    <Trash2 size={18} />
-                  </button>
+                  {isAdmin && (
+                    <>
+                      <button onClick={() => openModal(task)} className="btn-icon" title="Edit">
+                        <Edit2 size={18} />
+                      </button>
+                      <button onClick={() => openDeleteConfirm(task)} className="btn-icon btn-danger" title="Delete">
+                        <Trash2 size={18} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
               <p className="card-description">{task.description}</p>

@@ -9,8 +9,10 @@ A full-stack task management application built with React, TypeScript, Node.js, 
 - 👥 **Multi-User Assignment** - Assign multiple users to a single task
 - 📅 **Due Date Tracking** - Set and track task deadlines
 - 🎯 **Priority Levels** - Low, Medium, and High priority tasks
-- � **Duashboard** - Visual overview with statistics and upcoming deadlines
-- 🔒 **Role-Based Access** - Admin and User roles with different permissions
+- 📊 **Dashboard** - Visual overview with statistics and upcoming deadlines
+- 🔒 **Role-Based Access Control** - Admin and User roles with different permissions
+- ✅ **Task Completion** - One-click task completion button
+- 📧 **Email Notifications** - Automatic emails when tasks are assigned
 - 📱 **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
 - 🎨 **Modern UI** - Clean and intuitive user interface
 - 📖 **API Documentation** - Interactive Swagger documentation
@@ -65,7 +67,16 @@ DB_NAME=task-manage-db
 DB_PORT=3306
 
 JWT_SECRET_KEY=your-secret-key
+
+# Email Configuration (Optional - for task assignment notifications)
+SMTP_HOST=smtp.ethereal.email
+SMTP_PORT=587
+SMTP_USER=your-ethereal-email@ethereal.email
+SMTP_PASS=your-ethereal-password
+SMTP_FROM="Task Manager <noreply@taskmanager.com>"
 ```
+
+**Note:** For email setup instructions, see `backend/EMAIL_SETUP.md`
 
 Run migrations:
 ```bash
@@ -94,11 +105,18 @@ npm run dev
 ## 🚀 Usage
 
 1. **Access the application**: Open http://localhost:5173
-2. **Sign up**: Create a new account
-3. **Login**: Use your credentials to log in
-4. **Dashboard**: View task statistics and upcoming deadlines
-5. **Manage Tasks**: Create, edit, delete, and assign tasks
-6. **Admin Features**: Manage users (admin only)
+2. **Sign up**: Create a new account (defaults to 'user' role)
+3. **Create Admin User**: See `backend/CREATE_ADMIN.md` for instructions
+4. **Login**: Use your credentials to log in
+5. **Dashboard**: View task statistics and upcoming deadlines
+6. **Manage Tasks**: 
+   - **Admin**: Create, edit, delete, and assign tasks
+   - **User**: View assigned tasks and mark them complete
+7. **Email Notifications**: Users receive emails when assigned to tasks
+8. **Admin Features**: Access Users page to manage all users
+
+### Quick Start for Testing
+See `QUICK_START_RBAC.md` for a step-by-step testing guide.
 
 ## 📚 API Documentation
 
@@ -136,12 +154,40 @@ task-management-app/
 
 ## 🔑 Key Features Explained
 
+### Role-Based Access Control
+
+#### Admin Role
+- ✅ View all tasks in the system
+- ✅ Create, edit, and delete tasks
+- ✅ Assign tasks to multiple users
+- ✅ Access user management page
+- ✅ View all users
+- ✅ Mark tasks as complete
+
+#### User Role
+- ✅ View only assigned tasks
+- ✅ Mark assigned tasks as complete
+- ✅ Filter tasks by priority
+- ❌ Cannot create, edit, or delete tasks
+- ❌ Cannot access user management
+- ❌ Cannot see other users' tasks
+
+**For detailed RBAC documentation, see `ROLE_BASED_ACCESS.md`**
+
 ### Task Management
 - Create tasks with title, description, status, and priority
 - Set due dates for deadline tracking
 - Assign multiple users to collaborate on tasks
 - Filter tasks by priority (Low, Medium, High)
+- One-click task completion button
 - Update task status (Incomplete, In Progress, Completed)
+
+### Email Notifications
+- Automatic emails when users are assigned to tasks
+- Professional HTML email template
+- Includes task title, description, and due date
+- Configurable SMTP settings
+- Works with Gmail, SendGrid, AWS SES, or test services
 
 ### User Management (Admin Only)
 - View all registered users
@@ -150,7 +196,8 @@ task-management-app/
 - Delete users
 
 ### Dashboard
-- Total tasks count
+- Role-specific views (Admin Dashboard vs My Dashboard)
+- Total tasks count (filtered by role)
 - Completed, in-progress, and incomplete tasks
 - Overdue tasks tracking
 - High priority tasks overview
@@ -176,18 +223,34 @@ This project is open source and available under the MIT License.
 
 Built with ❤️ for efficient task management
 
+## 📚 Additional Documentation
+
+- **`ROLE_BASED_ACCESS.md`** - Complete RBAC documentation
+- **`QUICK_START_RBAC.md`** - Quick start guide for testing roles
+- **`IMPLEMENTATION_SUMMARY.md`** - Technical implementation details
+- **`backend/EMAIL_SETUP.md`** - Email configuration guide
+- **`backend/CREATE_ADMIN.md`** - How to create admin users
+
 ## 🐛 Known Issues
 
-- None at the moment
+- Email notifications require SMTP configuration (see EMAIL_SETUP.md)
+- Role must be set via database for existing users (see CREATE_ADMIN.md)
 
 ## 📝 Future Enhancements
 
-- Email notifications for due dates
-- Task comments and attachments
+- ✅ ~~Email notifications for task assignments~~ (Implemented!)
+- ✅ ~~Role-based access control~~ (Implemented!)
+- ✅ ~~Task completion button~~ (Implemented!)
+- Task comments and activity log
+- File attachments to tasks
 - Task categories and tags
 - Export tasks to CSV/PDF
 - Real-time updates with WebSockets
 - Mobile app version
+- Task templates
+- Recurring tasks
+- Time tracking
+- Team-based access control
 
 ---
 

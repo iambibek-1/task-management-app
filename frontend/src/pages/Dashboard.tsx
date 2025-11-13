@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { taskService } from '../services/taskService';
+import { authService } from '../services/authService';
 import type { Task } from '../services/taskService';
 import { 
   CheckCircle, 
@@ -13,6 +14,8 @@ import {
 } from 'lucide-react';
 
 export const Dashboard = () => {
+  const currentUser = authService.getCurrentUser();
+  const isAdmin = currentUser?.role === 'admin';
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -81,9 +84,9 @@ export const Dashboard = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>Dashboard</h1>
+        <h1>{isAdmin ? 'Admin Dashboard' : 'My Dashboard'}</h1>
         <Link to="/tasks" className="btn btn-primary">
-          View All Tasks
+          {isAdmin ? 'View All Tasks' : 'View My Tasks'}
         </Link>
       </div>
 

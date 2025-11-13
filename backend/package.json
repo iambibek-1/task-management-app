@@ -18,6 +18,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@types/nodemailer": "^6.4.21",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "bcrypt": "^5.1.1",
@@ -27,6 +28,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.12.0",
+    "nodemailer": "^6.10.1",
     "sequelize": "^6.37.5",
     "sequelize-cli": "^6.6.2",
     "swagger-jsdoc": "^6.2.8",

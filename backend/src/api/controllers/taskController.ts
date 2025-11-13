@@ -1,11 +1,19 @@
 import { Request, Response } from "express";
 import { TaskService } from "../../services";
-import { PriorEnum } from "../../enums";
+import { PriorEnum, RoleEnum } from "../../enums";
+import { CustomRequestInterface } from "../../interfaces";
 
 
 export class TaskController {
-    public static async getTask(req:Request, res:Response): Promise<Response>{
-        const tasks = await new TaskService().findAll();
+    public static async getTask(req:CustomRequestInterface, res:Response): Promise<Response>{
+        const userId = req.user?.id;
+        const userRole = req.user?.role;
+        
+        // Admin sees all tasks, users only see their assigned tasks
+        const tasks = userRole === RoleEnum.admin 
+            ? await new TaskService().findAll()
+            : await new TaskService().findByUserId(userId!);
+            
         return res.status(200).json({
             success:true,
             status:200,
@@ -14,23 +22,22 @@ export class TaskController {
         });
     }
 
-    public static async getTaskByPriority(req:Request, res:Response): Promise<Response>{
+    public static async getTaskByPriority(req:CustomRequestInterface, res:Response): Promise<Response>{
         const priority = req.params.priority as PriorEnum;
-         const tasks = await new TaskService().getTaskByPriority(priority);
-    // console.log(priority);
-    if (!tasks) {
-        return res.status(404).json({
-          success: false,
-          status: 404,
-          message: `Tasks with :${priority} priority are not found`,
+        const userId = req.user?.id;
+        const userRole = req.user?.role;
+        
+        const tasks = userRole === RoleEnum.admin
+            ? await new TaskService().getTaskByPriority(priority)
+            : await new TaskService().getTaskByPriorityAndUser(priority, userId!);
+        
+        // Return empty array instead of 404 when no tasks found
+        return res.status(200).json({
+            success: true,
+            status: 200,
+            message: tasks && tasks.length > 0 ? "Tasks fetched successfully" : "No tasks found",
+            data: tasks || [],
         });
-      }
-      return res.status(200).json({
-        success: true,
-        status: 200,
-        message: "Task fetched successfully",
-        data: tasks,
-      });
     }
 
     public static async postTask (req:Request, res: Response): Promise<Response>{
