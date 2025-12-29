@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
-import { LogOut, User, CheckSquare } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 
 export const Navbar = () => {
   const navigate = useNavigate();
@@ -14,9 +14,8 @@ export const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-brand">
-          <CheckSquare size={24} />
-          <span>TaskManager</span>
+        <Link to="/dashboard" className="navbar-brand">
+          <span className="logo-text">TaskFlow</span>
         </Link>
         
         {user && (

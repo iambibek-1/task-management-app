@@ -3,7 +3,6 @@ import { TaskService } from "../../services";
 import { PriorEnum, RoleEnum } from "../../enums";
 import { CustomRequestInterface } from "../../interfaces";
 
-
 export class TaskController {
     public static async getTask(req:CustomRequestInterface, res:Response): Promise<Response>{
         const userId = req.user?.id;
@@ -54,12 +53,26 @@ export class TaskController {
                 taskData.assignedUserIds = [taskData.assignedUserIds];
             }
             
-            const tasks = await new TaskService().createTask(taskData);
+            const task = await new TaskService().createTask(taskData);
+            
+            // Emit socket event for real-time updates
+            if (global.io) {
+                // Notify all admins
+                global.io.to('admin-room').emit('task-created', task);
+                
+                // Notify assigned users
+                if (taskData.assignedUserIds && taskData.assignedUserIds.length > 0) {
+                    taskData.assignedUserIds.forEach((userId: number) => {
+                        global.io.to(`user-${userId}`).emit('task-created', task);
+                    });
+                }
+            }
+            
             return res.status(201).json({
                 success:true,
                 status:201,
                 message:"Task added successfully",
-                data:tasks,
+                data:task,
             });
         } catch (error: any) {
             return res.status(500).json({
@@ -69,7 +82,6 @@ export class TaskController {
             });
         }
     }
-
 
     public static async updateTask (req:Request, res:Response): Promise<Response>{
         const id = req.params.id as unknown as number;
@@ -84,6 +96,22 @@ export class TaskController {
                     status: 404,
                     message: `Task with id ${id} not found`,
                 });
+            }
+            
+            // Get updated task for socket emission
+            const updatedTask = await new TaskService().findById(id);
+            
+            // Emit socket event for real-time updates
+            if (global.io && updatedTask) {
+                // Notify all admins
+                global.io.to('admin-room').emit('task-updated', updatedTask);
+                
+                // Notify assigned users
+                if (updatedTask.assignedUsers && updatedTask.assignedUsers.length > 0) {
+                    updatedTask.assignedUsers.forEach((user: any) => {
+                        global.io.to(`user-${user.id}`).emit('task-updated', updatedTask);
+                    });
+                }
             }
             
             return res.status(200).json({
@@ -102,7 +130,24 @@ export class TaskController {
 
     public static async deleteTask (req:Request, res:Response): Promise<Response>{
         const id = parseInt(req.params.id);
+        
+        // Get task before deletion for socket emission
+        const taskToDelete = await new TaskService().findById(id);
+        
         await new TaskService().deleteTask(id);
+        
+        // Emit socket event for real-time updates
+        if (global.io && taskToDelete) {
+            // Notify all admins
+            global.io.to('admin-room').emit('task-deleted', { id, task: taskToDelete });
+            
+            // Notify assigned users
+            if (taskToDelete.assignedUsers && taskToDelete.assignedUsers.length > 0) {
+                taskToDelete.assignedUsers.forEach((user: any) => {
+                    global.io.to(`user-${user.id}`).emit('task-deleted', { id, task: taskToDelete });
+                });
+            }
+        }
 
         return res.status(200).json({
             success:true,
@@ -123,6 +168,22 @@ export class TaskController {
                     status: 404,
                     message: `Task with id ${id} not found`,
                 });
+            }
+            
+            // Get updated task for socket emission
+            const completedTask = await new TaskService().findById(id);
+            
+            // Emit socket event for real-time updates
+            if (global.io && completedTask) {
+                // Notify all admins
+                global.io.to('admin-room').emit('task-completed', completedTask);
+                
+                // Notify assigned users
+                if (completedTask.assignedUsers && completedTask.assignedUsers.length > 0) {
+                    completedTask.assignedUsers.forEach((user: any) => {
+                        global.io.to(`user-${user.id}`).emit('task-completed', completedTask);
+                    });
+                }
             }
             
             return res.status(200).json({

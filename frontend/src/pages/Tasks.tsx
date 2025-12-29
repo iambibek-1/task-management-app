@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { taskService } from '../services/taskService';
 import type { Task, CreateTaskData } from '../services/taskService';
 import { authService } from '../services/authService';
+import { socketService } from '../services/socketService';
 import { Modal } from '../components/Modal';
 import { Notification } from '../components/Notification';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { Plus, Edit2, Trash2, Filter, CheckCircle } from 'lucide-react';
+import { TruncatedText } from '../components/TruncatedText';
+import { Plus, Edit2, Trash2, Filter, CheckCircle, Wifi, WifiOff } from 'lucide-react';
 
 export const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -15,6 +17,7 @@ export const Tasks = () => {
   const [filterPriority, setFilterPriority] = useState<'all' | 'low' | 'medium' | 'high'>('all');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [users, setUsers] = useState<any[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; taskId: number | null; taskTitle: string }>({
     isOpen: false,
     taskId: null,
@@ -60,6 +63,61 @@ export const Tasks = () => {
   useEffect(() => {
     loadTasks();
     loadUsers();
+    
+    // Initialize socket connection
+    const socket = socketService.connect();
+    if (socket) {
+      setIsConnected(socketService.isConnected());
+      
+      // Socket event handlers
+      const handleTaskCreated = (task: Task) => {
+        setTasks(prevTasks => [task, ...prevTasks]);
+        setNotification({ message: `New task "${task.title}" created!`, type: 'info' });
+      };
+      
+      const handleTaskUpdated = (updatedTask: Task) => {
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === updatedTask.id ? updatedTask : task
+          )
+        );
+        setNotification({ message: `Task "${updatedTask.title}" updated!`, type: 'info' });
+      };
+      
+      const handleTaskDeleted = (data: { id: number; task: Task }) => {
+        setTasks(prevTasks => prevTasks.filter(task => task.id !== data.id));
+        setNotification({ message: `Task "${data.task.title}" deleted!`, type: 'info' });
+      };
+      
+      const handleTaskCompleted = (completedTask: Task) => {
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === completedTask.id ? completedTask : task
+          )
+        );
+        setNotification({ message: `Task "${completedTask.title}" completed!`, type: 'success' });
+      };
+      
+      // Register event listeners
+      socketService.onTaskCreated(handleTaskCreated);
+      socketService.onTaskUpdated(handleTaskUpdated);
+      socketService.onTaskDeleted(handleTaskDeleted);
+      socketService.onTaskCompleted(handleTaskCompleted);
+      
+      // Connection status listeners
+      socket.on('connect', () => setIsConnected(true));
+      socket.on('disconnect', () => setIsConnected(false));
+      
+      // Cleanup function
+      return () => {
+        socketService.offTaskCreated(handleTaskCreated);
+        socketService.offTaskUpdated(handleTaskUpdated);
+        socketService.offTaskDeleted(handleTaskDeleted);
+        socketService.offTaskCompleted(handleTaskCompleted);
+        socket.off('connect');
+        socket.off('disconnect');
+      };
+    }
   }, [loadTasks, loadUsers]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -198,7 +256,13 @@ export const Tasks = () => {
       )}
 
       <div className="page-header">
-        <h1>{isAdmin ? 'All Tasks' : 'My Tasks'}</h1>
+        <div className="page-header-left">
+          <h1>{isAdmin ? 'All Tasks' : 'My Tasks'}</h1>
+          <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
+            {isConnected ? <Wifi size={16} /> : <WifiOff size={16} />}
+            <span>{isConnected ? 'Live' : 'Offline'}</span>
+          </div>
+        </div>
         {isAdmin && (
           <button onClick={() => openModal()} className="btn btn-primary">
             <Plus size={20} />
@@ -257,7 +321,11 @@ export const Tasks = () => {
                   )}
                 </div>
               </div>
-              <p className="card-description">{task.description}</p>
+              <TruncatedText 
+                text={task.description} 
+                maxLength={120} 
+                className="card-description" 
+              />
               
               <div className="card-footer">
                 <span className={`badge ${getPriorityColor(task.priority)}`}>

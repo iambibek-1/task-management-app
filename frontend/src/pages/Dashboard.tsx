@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { taskService } from '../services/taskService';
 import { authService } from '../services/authService';
+import { socketService } from '../services/socketService';
 import type { Task } from '../services/taskService';
 import { 
   CheckCircle, 
@@ -10,7 +11,9 @@ import {
   TrendingUp,
   Calendar,
   Users,
-  BarChart3
+  BarChart3,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 
 export const Dashboard = () => {
@@ -18,6 +21,7 @@ export const Dashboard = () => {
   const isAdmin = currentUser?.role === 'admin';
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
@@ -29,7 +33,81 @@ export const Dashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
+    
+    // Initialize socket connection
+    const socket = socketService.connect();
+    if (socket) {
+      setIsConnected(socketService.isConnected());
+      
+      // Socket event handlers for real-time updates
+      const handleTaskCreated = (task: Task) => {
+        setTasks(prevTasks => [task, ...prevTasks]);
+      };
+      
+      const handleTaskUpdated = (updatedTask: Task) => {
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === updatedTask.id ? updatedTask : task
+          )
+        );
+      };
+      
+      const handleTaskDeleted = (data: { id: number; task: Task }) => {
+        setTasks(prevTasks => prevTasks.filter(task => task.id !== data.id));
+      };
+      
+      const handleTaskCompleted = (completedTask: Task) => {
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === completedTask.id ? completedTask : task
+          )
+        );
+      };
+      
+      // Register event listeners
+      socketService.onTaskCreated(handleTaskCreated);
+      socketService.onTaskUpdated(handleTaskUpdated);
+      socketService.onTaskDeleted(handleTaskDeleted);
+      socketService.onTaskCompleted(handleTaskCompleted);
+      
+      // Connection status listeners
+      socket.on('connect', () => setIsConnected(true));
+      socket.on('disconnect', () => setIsConnected(false));
+      
+      // Cleanup function
+      return () => {
+        socketService.offTaskCreated(handleTaskCreated);
+        socketService.offTaskUpdated(handleTaskUpdated);
+        socketService.offTaskDeleted(handleTaskDeleted);
+        socketService.offTaskCompleted(handleTaskCompleted);
+        socket.off('connect');
+        socket.off('disconnect');
+      };
+    }
   }, []);
+
+  // Recalculate stats when tasks change due to real-time updates
+  useEffect(() => {
+    if (tasks.length > 0) {
+      const now = new Date();
+      const completed = tasks.filter((t: Task) => t.status === 'completed').length;
+      const inProgress = tasks.filter((t: Task) => t.status === 'inProgress').length;
+      const incomplete = tasks.filter((t: Task) => t.status === 'incompleted').length;
+      const overdue = tasks.filter((t: Task) => 
+        t.dueDate && new Date(t.dueDate) < now && t.status !== 'completed'
+      ).length;
+      const highPriority = tasks.filter((t: Task) => t.priority === 'high').length;
+
+      setStats({
+        total: tasks.length,
+        completed,
+        inProgress,
+        incomplete,
+        overdue,
+        highPriority,
+      });
+    }
+  }, [tasks]);
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -84,7 +162,13 @@ export const Dashboard = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1>{isAdmin ? 'Admin Dashboard' : 'My Dashboard'}</h1>
+        <div className="page-header-left">
+          <h1>{isAdmin ? 'Admin Dashboard' : 'My Dashboard'}</h1>
+          <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
+            {isConnected ? <Wifi size={16} /> : <WifiOff size={16} />}
+            <span>{isConnected ? 'Live' : 'Offline'}</span>
+          </div>
+        </div>
         <Link to="/tasks" className="btn btn-primary">
           {isAdmin ? 'View All Tasks' : 'View My Tasks'}
         </Link>

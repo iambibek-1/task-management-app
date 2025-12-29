@@ -42,7 +42,7 @@ export const Signup = () => {
       setNotification({ message: response.error, type: 'error' });
     } else {
       setNotification({ message: 'Account created successfully!', type: 'success' });
-      setTimeout(() => navigate('/tasks'), 1000);
+      setTimeout(() => navigate('/dashboard'), 1000);
     }
   };
 
@@ -59,8 +59,8 @@ export const Signup = () => {
       <div className="auth-card">
         <div className="auth-header">
           <UserPlus size={48} className="auth-icon" />
-          <h1>Create Account</h1>
-          <p>Sign up to get started</p>
+          <h1>Join TaskFlow</h1>
+          <p>Create your account to get started</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
