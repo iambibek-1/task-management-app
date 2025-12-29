@@ -29,7 +29,7 @@ export const Login = () => {
       setNotification({ message: response.error, type: 'error' });
     } else {
       setNotification({ message: 'Login successful!', type: 'success' });
-      setTimeout(() => navigate('/tasks'), 1000);
+      setTimeout(() => navigate('/dashboard'), 1000);
     }
   };
 
@@ -46,8 +46,8 @@ export const Login = () => {
       <div className="auth-card">
         <div className="auth-header">
           <LogIn size={48} className="auth-icon" />
-          <h1>Welcome Back</h1>
-          <p>Sign in to your account</p>
+          <h1>Welcome to TaskFlow</h1>
+          <p>Sign in to streamline your workflow</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">

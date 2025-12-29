@@ -1,13 +1,30 @@
 // Import the 'express' module along with 'Request' and 'Response' types from express
 import express, { Application, Request, Response, NextFunction } from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
 
 // Create an Express application
-const app:Application = express();
+const app: Application = express();
+const server = createServer(app);
+
+// Initialize Socket.IO
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+  }
+});
+
+// Make io available globally
+declare global {
+  var io: Server;
+}
+global.io = io;
 
 // Specify the port number for the server
-import {port, Database, environment} from './config'
+import { port, Database, environment } from './config'
 import router from './api/routes';
 
 // Enable CORS for frontend
@@ -23,6 +40,27 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 Database.connection();
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+  
+  // Join user to their own room for targeted updates
+  socket.on('join-user', (userId) => {
+    socket.join(`user-${userId}`);
+    console.log(`User ${userId} joined their room`);
+  });
+  
+  // Join admin room for admin-specific updates
+  socket.on('join-admin', () => {
+    socket.join('admin-room');
+    console.log('Admin joined admin room');
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
@@ -48,7 +86,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Start the server and listen on the specified port
-app.listen(port, () => {
+server.listen(port, () => {
   // Log a message when the server is successfully running
   console.log(`Server is running on http://localhost:${port} on ${environment} server`);
+  console.log('Socket.IO server initialized');
 });

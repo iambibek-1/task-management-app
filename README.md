@@ -1,21 +1,24 @@
-# � Taask Management System
+# ⚡ TaskFlow - Streamline Your Workflow
 
-A full-stack task management application built with React, TypeScript, Node.js, Express, and MySQL. Features include user authentication, task CRUD operations, multi-user assignment, and role-based access control.
+A modern, full-stack task management application built with React, TypeScript, Node.js, Express, and MySQL. Features real-time updates, user authentication, task management, and role-based access control with a sleek dark theme interface.
 
 ## ✨ Features
 
 - 🔐 **User Authentication** - JWT-based login and registration
+- ⚡ **Real-Time Updates** - Live task updates with Socket.IO
 - ✅ **Task Management** - Create, read, update, and delete tasks
-- 👥 **Multi-User Assignment** - Assign multiple users to a single task
+- � ***Multi-User Assignment** - Assign multiple users to a single task
 - 📅 **Due Date Tracking** - Set and track task deadlines
 - 🎯 **Priority Levels** - Low, Medium, and High priority tasks
-- 📊 **Dashboard** - Visual overview with statistics and upcoming deadlines
+- �  **Live Dashboard** - Real-time statistics and upcoming deadlines
 - 🔒 **Role-Based Access Control** - Admin and User roles with different permissions
-- ✅ **Task Completion** - One-click task completion button
-- 📧 **Email Notifications** - Automatic emails when tasks are assigned
+- ✅ **Task Completion** - One-click task completion with live updates
+- � ***Email Notifications** - Automatic emails when tasks are assigned
 - 📱 **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
-- 🎨 **Modern UI** - Clean and intuitive user interface
+- 🎨 **Modern Dark UI** - Clean, professional interface with blue accent colors
 - 📖 **API Documentation** - Interactive Swagger documentation
+- � **ConneSction Status** - Live/Offline indicator for real-time features
+- 📝 **Smart Text Truncation** - Expandable descriptions with modal popups
 
 ## 🛠️ Tech Stack
 
@@ -23,6 +26,7 @@ A full-stack task management application built with React, TypeScript, Node.js, 
 - React 19
 - TypeScript
 - React Router DOM
+- Socket.IO Client (Real-time updates)
 - Lucide React (Icons)
 - Vite
 
@@ -30,6 +34,7 @@ A full-stack task management application built with React, TypeScript, Node.js, 
 - Node.js
 - Express.js
 - TypeScript
+- Socket.IO (Real-time communication)
 - Sequelize ORM
 - MySQL
 - JWT Authentication
@@ -45,7 +50,7 @@ A full-stack task management application built with React, TypeScript, Node.js, 
 ### 1. Clone the repository
 ```bash
 git clone <your-repo-url>
-cd task-management-app
+cd taskflow-app
 ```
 
 ### 2. Setup Backend
@@ -73,7 +78,7 @@ SMTP_HOST=smtp.ethereal.email
 SMTP_PORT=587
 SMTP_USER=your-ethereal-email@ethereal.email
 SMTP_PASS=your-ethereal-password
-SMTP_FROM="Task Manager <noreply@taskmanager.com>"
+SMTP_FROM="TaskFlow <noreply@taskflow.com>"
 ```
 
 **Note:** For email setup instructions, see `backend/EMAIL_SETUP.md`
@@ -104,19 +109,37 @@ npm run dev
 
 ## 🚀 Usage
 
-1. **Access the application**: Open http://localhost:5173
+1. **Access TaskFlow**: Open http://localhost:5173
 2. **Sign up**: Create a new account (defaults to 'user' role)
 3. **Create Admin User**: See `backend/CREATE_ADMIN.md` for instructions
-4. **Login**: Use your credentials to log in
-5. **Dashboard**: View task statistics and upcoming deadlines
+4. **Login**: Use your credentials to access the dashboard
+5. **Real-Time Dashboard**: View live task statistics and updates
 6. **Manage Tasks**: 
-   - **Admin**: Create, edit, delete, and assign tasks
-   - **User**: View assigned tasks and mark them complete
-7. **Email Notifications**: Users receive emails when assigned to tasks
-8. **Admin Features**: Access Users page to manage all users
+   - **Admin**: Create, edit, delete, and assign tasks with live updates
+   - **User**: View assigned tasks and mark them complete in real-time
+7. **Live Updates**: See instant notifications when tasks are created, updated, or completed
+8. **Connection Status**: Monitor real-time connection with Live/Offline indicator
+9. **Smart UI**: Click "...more" on long descriptions to view in popup modal
 
 ### Quick Start for Testing
 See `QUICK_START_RBAC.md` for a step-by-step testing guide.
+
+## ⚡ Real-Time Features
+
+TaskFlow uses Socket.IO to provide instant updates across all connected users:
+
+- **Live Task Creation** - New tasks appear instantly for all relevant users
+- **Real-Time Updates** - Task edits sync immediately across all sessions
+- **Instant Completion** - Task status changes update live for all users
+- **Live Notifications** - In-app notifications for all task activities
+- **Connection Monitoring** - Visual indicator shows real-time connection status
+- **Auto-Reconnection** - Automatic reconnection with exponential backoff
+
+### Socket Events
+- `task-created` - New task notifications
+- `task-updated` - Task modification updates
+- `task-deleted` - Task removal notifications
+- `task-completed` - Task completion updates
 
 ## 📚 API Documentation
 
@@ -128,24 +151,26 @@ http://localhost:3001/api-docs
 ## 🗂️ Project Structure
 
 ```
-task-management-app/
+taskflow-app/
 ├── backend/
 │   ├── src/
 │   │   ├── api/
-│   │   │   ├── controllers/
+│   │   │   ├── controllers/    # Socket-enabled controllers
 │   │   │   └── routes/
 │   │   ├── config/
 │   │   ├── migrations/
 │   │   ├── models/
 │   │   ├── services/
-│   │   └── validators/
+│   │   └── server.ts          # Socket.IO server setup
 │   └── package.json
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
+│   │   │   └── TruncatedText.tsx  # Smart text truncation
 │   │   ├── pages/
 │   │   ├── services/
+│   │   │   └── socketService.ts   # Real-time client
 │   │   └── App.tsx
 │   └── package.json
 │
@@ -154,55 +179,48 @@ task-management-app/
 
 ## 🔑 Key Features Explained
 
+### Real-Time Updates
+- **Instant Sync**: All task changes sync immediately across all connected users
+- **Live Dashboard**: Statistics update in real-time without page refresh
+- **Connection Status**: Visual indicator shows when real-time features are active
+- **Smart Notifications**: Non-intrusive notifications for task activities
+- **Room-Based Updates**: Users only receive relevant updates (assigned tasks + admin sees all)
+
 ### Role-Based Access Control
 
 #### Admin Role
-- ✅ View all tasks in the system
-- ✅ Create, edit, and delete tasks
+- ✅ View all tasks in real-time
+- ✅ Create, edit, and delete tasks with live updates
 - ✅ Assign tasks to multiple users
 - ✅ Access user management page
 - ✅ View all users
-- ✅ Mark tasks as complete
+- ✅ Receive all task notifications
 
 #### User Role
-- ✅ View only assigned tasks
-- ✅ Mark assigned tasks as complete
+- ✅ View only assigned tasks with live updates
+- ✅ Mark assigned tasks as complete in real-time
 - ✅ Filter tasks by priority
+- ✅ Receive notifications for assigned tasks only
 - ❌ Cannot create, edit, or delete tasks
 - ❌ Cannot access user management
 - ❌ Cannot see other users' tasks
 
-**For detailed RBAC documentation, see `ROLE_BASED_ACCESS.md`**
+### Enhanced UI/UX
+- **Dark Theme**: Professional dark interface with blue accent colors
+- **Smart Text Handling**: Long descriptions show "...more" with modal popup
+- **Connection Indicator**: Live/Offline status with animated icons
+- **Responsive Design**: Optimized for all screen sizes
+- **Modern Typography**: Clean, readable fonts with proper hierarchy
+- **Smooth Animations**: Subtle transitions and hover effects
 
 ### Task Management
 - Create tasks with title, description, status, and priority
 - Set due dates for deadline tracking
 - Assign multiple users to collaborate on tasks
 - Filter tasks by priority (Low, Medium, High)
-- One-click task completion button
+- One-click task completion with real-time updates
 - Update task status (Incomplete, In Progress, Completed)
-
-### Email Notifications
-- Automatic emails when users are assigned to tasks
-- Professional HTML email template
-- Includes task title, description, and due date
-- Configurable SMTP settings
-- Works with Gmail, SendGrid, AWS SES, or test services
-
-### User Management (Admin Only)
-- View all registered users
-- Create new users with role assignment
-- Update user information
-- Delete users
-
-### Dashboard
-- Role-specific views (Admin Dashboard vs My Dashboard)
-- Total tasks count (filtered by role)
-- Completed, in-progress, and incomplete tasks
-- Overdue tasks tracking
-- High priority tasks overview
-- Recent tasks list
-- Upcoming deadlines
+- Smart description truncation with expandable modals
 
 ## 🔒 Security
 
@@ -210,6 +228,24 @@ task-management-app/
 - JWT tokens for secure authentication
 - Protected routes with role-based access control
 - CORS enabled for frontend-backend communication
+- Socket.IO rooms for secure real-time updates
+- User-specific and admin-only event channels
+
+## 🎨 Design System
+
+### Color Palette
+- **Primary**: Blue (#2563eb, #3b82f6)
+- **Background**: Dark grays (#374151, #1f2937, #4b5563)
+- **Text**: Light grays (#f9fafb, #d1d5db, #9ca3af)
+- **Success**: Green (#10b981)
+- **Danger**: Red (#ef4444)
+- **Warning**: Orange (#f59e0b)
+
+### Typography
+- **Font Family**: Inter, system fonts
+- **Headings**: Bold, proper hierarchy
+- **Body**: Clean, readable line height
+- **UI Elements**: Medium weight for emphasis
 
 ## 🤝 Contributing
 
@@ -221,7 +257,7 @@ This project is open source and available under the MIT License.
 
 ## 👨‍💻 Author
 
-Built with ❤️ for efficient task management
+Built with ❤️ for efficient task management and real-time collaboration
 
 ## 📚 Additional Documentation
 
@@ -235,23 +271,34 @@ Built with ❤️ for efficient task management
 
 - Email notifications require SMTP configuration (see EMAIL_SETUP.md)
 - Role must be set via database for existing users (see CREATE_ADMIN.md)
+- Real-time features require both frontend and backend to be running
 
-## 📝 Future Enhancements
+## 📝 Recent Updates
 
-- ✅ ~~Email notifications for task assignments~~ (Implemented!)
-- ✅ ~~Role-based access control~~ (Implemented!)
-- ✅ ~~Task completion button~~ (Implemented!)
+### v2.0.0 - Real-Time Edition
+- ✅ **Socket.IO Integration** - Real-time task updates
+- ✅ **New Branding** - TaskFlow with modern blue theme
+- ✅ **Dark UI Theme** - Professional dark interface
+- ✅ **Smart Text Truncation** - Modal popups for long descriptions
+- ✅ **Connection Status** - Live/Offline indicators
+- ✅ **Enhanced Dashboard** - Real-time statistics
+- ✅ **Improved UX** - Better navigation and visual feedback
+
+### Future Enhancements
 - Task comments and activity log
 - File attachments to tasks
 - Task categories and tags
 - Export tasks to CSV/PDF
-- Real-time updates with WebSockets
 - Mobile app version
 - Task templates
 - Recurring tasks
 - Time tracking
 - Team-based access control
+- Push notifications
+- Offline mode with sync
 
 ---
 
-**Happy Task Managing! 🎉**
+**Experience the future of task management with TaskFlow! ⚡**
+
+*Real-time collaboration • Modern interface • Powerful features*
