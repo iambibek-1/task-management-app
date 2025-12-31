@@ -1,6 +1,7 @@
 import Task from "./task";
 import User from "./user";
 import TaskAssignment from "./taskAssignment";
+import TaskCompletion from "./taskCompletion";
 
 // Define associations
 Task.belongsToMany(User, { 
@@ -15,9 +16,16 @@ User.belongsToMany(Task, {
   as: 'assignedTasks'
 });
 
+// TaskCompletion associations
+TaskCompletion.belongsTo(Task, { foreignKey: 'taskId', as: 'task' });
+TaskCompletion.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Task.hasMany(TaskCompletion, { foreignKey: 'taskId', as: 'completions' });
+User.hasMany(TaskCompletion, { foreignKey: 'userId', as: 'completions' });
+
 const Models = {
     User,
     Task,
     TaskAssignment,
+    TaskCompletion,
 }
 export default Models;

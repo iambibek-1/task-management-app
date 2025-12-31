@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from 'react';
 import { userService } from '../services/userService';
 import type { User, CreateUserData } from '../services/userService';

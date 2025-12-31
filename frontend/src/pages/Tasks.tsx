@@ -8,7 +8,10 @@ import { Modal } from '../components/Modal';
 import { Notification } from '../components/Notification';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { TruncatedText } from '../components/TruncatedText';
-import { Plus, Edit2, Trash2, Filter, CheckCircle, Wifi, WifiOff } from 'lucide-react';
+import { TaskCompletionModal } from '../components/TaskCompletionModal';
+import { TaskRecommendations } from '../components/TaskRecommendations';
+import { SmartUserSelection } from '../components/SmartUserSelection';
+import { Plus, Edit2, Trash2, Filter, CheckCircle, Clock } from 'lucide-react';
 
 export const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -25,6 +28,16 @@ export const Tasks = () => {
     taskTitle: '',
   });
   const [isCreating, setIsCreating] = useState(false);
+  const [completionModal, setCompletionModal] = useState<{
+    isOpen: boolean;
+    taskId: number | null;
+    taskTitle: string;
+  }>({
+    isOpen: false,
+    taskId: null,
+    taskTitle: '',
+  });
+  const [isCompleting, setIsCompleting] = useState(false);
   
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.role === 'admin';
@@ -178,13 +191,32 @@ export const Tasks = () => {
   };
 
   const handleComplete = async (taskId: number, taskTitle: string) => {
-    const response = await taskService.completeTask(taskId);
+    setCompletionModal({
+      isOpen: true,
+      taskId,
+      taskTitle,
+    });
+  };
+
+  const handleTaskCompletion = async (completionData: { notes?: string }) => {
+    if (!completionModal.taskId) return;
+    
+    setIsCompleting(true);
+    const response = await taskService.completeTask(completionModal.taskId, completionData);
+    
     if (response.error) {
       setNotification({ message: response.error, type: 'error' });
     } else {
-      setNotification({ message: `"${taskTitle}" marked as completed!`, type: 'success' });
+      setNotification({ message: `"${completionModal.taskTitle}" marked as completed!`, type: 'success' });
       loadTasks();
+      setCompletionModal({ isOpen: false, taskId: null, taskTitle: '' });
     }
+    
+    setIsCompleting(false);
+  };
+
+  const closeCompletionModal = () => {
+    setCompletionModal({ isOpen: false, taskId: null, taskTitle: '' });
   };
 
   const openModal = (task?: Task) => {
@@ -227,6 +259,28 @@ export const Tasks = () => {
     }
   };
 
+  const handleApplyRecommendation = (type: string, data: any) => {
+    switch (type) {
+      case 'priority':
+        if (data.suggestedPriority) {
+          setFormData(prev => ({ ...prev, priority: data.suggestedPriority }));
+          setNotification({ message: `Priority updated to ${data.suggestedPriority}`, type: 'success' });
+        }
+        break;
+      case 'due_date':
+        if (data.suggestedDate) {
+          setFormData(prev => ({ ...prev, dueDate: data.suggestedDate }));
+        }
+        break;
+      case 'user_assignment':
+        // Handle user assignment recommendations if needed
+        setNotification({ message: 'User assignment recommendation noted', type: 'info' });
+        break;
+      default:
+        console.warn('Unknown recommendation type:', type);
+    }
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingTask(null);
@@ -265,8 +319,7 @@ export const Tasks = () => {
         <div className="page-header-left">
           <h1>{isAdmin ? 'All Tasks' : 'My Tasks'}</h1>
           <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-            {isConnected ? <Wifi size={16} /> : <WifiOff size={16} />}
-            <span>{isConnected ? 'Live' : 'Offline'}</span>
+            <div className={`status-dot ${isConnected ? 'online' : 'offline'}`}></div>
           </div>
         </div>
         {isAdmin && (
@@ -350,6 +403,12 @@ export const Tasks = () => {
                       <span>{new Date(task.dueDate).toLocaleDateString()}</span>
                     </div>
                   )}
+                  {task.actualHours && (
+                    <div className="task-card-meta-item">
+                      <Clock size={14} />
+                      <span>{task.actualHours}h spent</span>
+                    </div>
+                  )}
                   {task.assignedUsers && task.assignedUsers.length > 0 && (
                     <div className="task-card-meta-item">
                       <span>👥</span>
@@ -374,6 +433,14 @@ export const Tasks = () => {
         confirmText="Yes, Delete"
         cancelText="Cancel"
         type="danger"
+      />
+
+      <TaskCompletionModal
+        isOpen={completionModal.isOpen}
+        onClose={closeCompletionModal}
+        onComplete={handleTaskCompletion}
+        taskTitle={completionModal.taskTitle}
+        isCompleting={isCompleting}
       />
 
       <Modal
@@ -444,27 +511,24 @@ export const Tasks = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label>Assign To (Select multiple users)</label>
-            <div className="user-selection-grid">
-              {users.map((user) => (
-                <label key={user.id} className="user-checkbox-label">
-                  <input
-                    type="checkbox"
-                    className="task-checkbox"
-                    checked={formData.assignedUserIds?.includes(user.id) || false}
-                    onChange={() => handleUserSelection(user.id)}
-                  />
-                  <span>{user.firstName} {user.lastName}</span>
-                </label>
-              ))}
-            </div>
-            {formData.assignedUserIds && formData.assignedUserIds.length > 0 && (
-              <div className="selected-users-preview">
-                <small>Selected: {formData.assignedUserIds.length} user(s)</small>
-              </div>
-            )}
-          </div>
+          <SmartUserSelection
+            users={users}
+            selectedUserIds={formData.assignedUserIds || []}
+            onUserSelection={handleUserSelection}
+            taskData={{
+              title: formData.title,
+              description: formData.description,
+              priority: formData.priority,
+              dueDate: formData.dueDate
+            }}
+          />
+
+          {!editingTask && formData.title && formData.description && (
+            <TaskRecommendations
+              taskData={formData}
+              onApplyRecommendation={handleApplyRecommendation}
+            />
+          )}
 
           <div className="form-actions">
             <button type="button" onClick={closeModal} className="btn btn-secondary" disabled={isCreating}>

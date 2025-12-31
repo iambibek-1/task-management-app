@@ -43,8 +43,26 @@ const Task = sequelize.define<TaskModelInterface>('Task', {
       dueDate: {
         type: Sequelize.DATE,
         allowNull: true,
+      },
+      estimatedHours: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+        defaultValue: null,
+      },
+      actualHours: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+        defaultValue: null,
+      },
+      startedAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      completedAt: {
+        type: Sequelize.DATE,
+        allowNull: true,
       }
 },{
-    timestamps: false,
+    timestamps: true,
 });
 export default Task; 

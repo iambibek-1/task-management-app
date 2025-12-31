@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { taskService } from '../services/taskService';
@@ -11,9 +12,7 @@ import {
   TrendingUp,
   Calendar,
   Users,
-  BarChart3,
-  Wifi,
-  WifiOff
+  BarChart3
 } from 'lucide-react';
 
 export const Dashboard = () => {
@@ -165,8 +164,7 @@ export const Dashboard = () => {
         <div className="page-header-left">
           <h1>{isAdmin ? 'Admin Dashboard' : 'My Dashboard'}</h1>
           <div className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
-            {isConnected ? <Wifi size={16} /> : <WifiOff size={16} />}
-            <span>{isConnected ? 'Live' : 'Offline'}</span>
+            <div className={`status-dot ${isConnected ? 'online' : 'offline'}`}></div>
           </div>
         </div>
         <Link to="/tasks" className="btn btn-primary">

@@ -1,14 +1,17 @@
 import Models from "../models";
 import { TaskInterface, InputTaskInterface } from "../interfaces";
-import { Model } from "sequelize";
+import { Model, Op } from "sequelize";
 import { PriorEnum } from "../enums";
 import { EmailService } from "./emailService";
+import { TaskRecommendationService } from "./taskRecommendationService";
 
 export class TaskService {
   private emailService: EmailService;
+  private recommendationService: TaskRecommendationService;
 
   constructor() {
     this.emailService = new EmailService();
+    this.recommendationService = new TaskRecommendationService();
   }
 
   public async createTask(data: InputTaskInterface): Promise<any> {
@@ -172,20 +175,98 @@ export class TaskService {
     }
   }
 
-  public async completeTask(id: number): Promise<boolean> {
+  public async completeTask(id: number, userId: number, notes?: string): Promise<boolean> {
     // Check if task exists first
     const existingTask = await Models.Task.findByPk(id);
     if (!existingTask) {
       return false;
     }
 
-    // Update task status to completed
+    const completedAt = new Date();
+    const createdAt = existingTask.createdAt ? new Date(existingTask.createdAt) : new Date();
+    
+    // Calculate time spent in hours based on creation and completion dates
+    const timeSpentMilliseconds = completedAt.getTime() - createdAt.getTime();
+    const timeSpentHours = Math.round((timeSpentMilliseconds / (1000 * 60 * 60)) * 100) / 100; // Round to 2 decimal places
+    
+    // Update task status and actual hours
     await Models.Task.update(
-      { status: 'completed' as any },
+      { 
+        status: 'completed' as any,
+        actualHours: timeSpentHours,
+        completedAt: completedAt
+      },
       { where: { id: id } }
     );
     
+    // Create completion record with auto-calculated time
+    // Since we don't have estimated hours, we'll calculate efficiency based on task complexity and time spent
+    // This is a simplified approach - in a real system, you might want to use historical averages
+    let efficiency = 1.0;
+    
+    // Calculate efficiency based on task complexity and time spent
+    const taskComplexity = this.estimateTaskComplexity(existingTask.title, existingTask.description, existingTask.priority);
+    const expectedHours = taskComplexity; // Use complexity as expected hours
+    
+    if (timeSpentHours > 0) {
+      efficiency = expectedHours / timeSpentHours;
+      // Cap efficiency between 0.1 and 3.0 for realistic values
+      efficiency = Math.max(0.1, Math.min(3.0, efficiency));
+    }
+    
+    await Models.TaskCompletion.create({
+      taskId: id,
+      userId: userId,
+      completedAt: completedAt,
+      timeSpentHours: timeSpentHours,
+      efficiency: efficiency,
+      notes: notes || undefined
+    });
+    
     return true;
+  }
+
+  /**
+   * Estimate task complexity based on title, description, and priority
+   * Returns estimated hours for efficiency calculation
+   */
+  private estimateTaskComplexity(title: string, description: string, priority: string): number {
+    let baseHours = 2; // Base complexity
+    
+    // Adjust based on content length and keywords
+    const content = `${title} ${description}`.toLowerCase();
+    const contentLength = content.length;
+    
+    // Content length factor
+    if (contentLength > 500) baseHours += 3;
+    else if (contentLength > 200) baseHours += 2;
+    else if (contentLength > 100) baseHours += 1;
+    
+    // Complexity keywords
+    const complexityKeywords = [
+      'integration', 'database', 'api', 'algorithm', 'complex', 'multiple',
+      'system', 'architecture', 'design', 'implement', 'develop', 'create',
+      'build', 'configure', 'setup', 'install', 'deploy', 'test', 'debug'
+    ];
+    
+    const keywordMatches = complexityKeywords.filter(keyword => content.includes(keyword)).length;
+    baseHours += keywordMatches * 0.5;
+    
+    // Priority adjustment
+    switch (priority) {
+      case 'high':
+        baseHours *= 1.2; // High priority tasks often more complex
+        break;
+      case 'medium':
+        baseHours *= 1.0;
+        break;
+      case 'low':
+        baseHours *= 0.8;
+        break;
+    }
+    
+    // Cap between 1 and 20 hours
+    return Math.max(1, Math.min(20, Math.round(baseHours * 10) / 10));
   }
 
   public async findByUserId(userId: number): Promise<any> {
@@ -224,5 +305,107 @@ export class TaskService {
       console.log("Error fetching task", error);
       return [];
     }
+  }
+
+  /**
+   * Get task recommendations for creation
+   */
+  public async getTaskRecommendations(taskData: {
+    title: string;
+    description: string;
+    priority?: string;
+    estimatedHours?: number;
+    assignedUserIds?: number[];
+  }) {
+    return await this.recommendationService.getTaskCreationRecommendations(taskData);
+  }
+
+  /**
+   * Get user performance analytics
+   */
+  public async getUserPerformanceAnalytics(userId: number) {
+    return await this.recommendationService.getUserPerformanceAnalytics(userId);
+  }
+
+  /**
+   * Get task completion records
+   */
+  public async getTaskCompletionRecords(filters?: {
+    userId?: number;
+    taskId?: number;
+    startDate?: Date;
+    endDate?: Date;
+  }) {
+    const whereClause: any = {};
+    
+    if (filters?.userId) whereClause.userId = filters.userId;
+    if (filters?.taskId) whereClause.taskId = filters.taskId;
+    if (filters?.startDate || filters?.endDate) {
+      whereClause.completedAt = {};
+      if (filters.startDate) whereClause.completedAt[Op.gte] = filters.startDate;
+      if (filters.endDate) whereClause.completedAt[Op.lte] = filters.endDate;
+    }
+
+    return await Models.TaskCompletion.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: Models.Task,
+          as: 'task',
+          attributes: ['id', 'title', 'priority']
+        },
+        {
+          model: Models.User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName']
+        }
+      ],
+      order: [['completedAt', 'DESC']]
+    });
+  }
+
+  /**
+   * Get task analytics dashboard data
+   */
+  public async getTaskAnalytics() {
+    const totalTasks = await Models.Task.count();
+    const completedTasks = await Models.Task.count({ where: { status: 'completed' } });
+    const inProgressTasks = await Models.Task.count({ where: { status: 'inProgress' } });
+    const incompleteTasks = await Models.Task.count({ where: { status: 'incompleted' } });
+    
+    // Average completion time
+    const completions = await Models.TaskCompletion.findAll({
+      attributes: ['timeSpentHours', 'efficiency'],
+      limit: 100,
+      order: [['completedAt', 'DESC']]
+    });
+    
+    const avgTimeSpent = completions.length > 0 
+      ? completions.reduce((sum, comp) => sum + comp.timeSpentHours, 0) / completions.length
+      : 0;
+    
+    const avgEfficiency = completions.length > 0
+      ? completions.reduce((sum, comp) => sum + comp.efficiency, 0) / completions.length
+      : 1.0;
+    
+    // Overdue tasks
+    const now = new Date();
+    const overdueTasks = await Models.Task.count({
+      where: {
+        dueDate: { [Op.lt]: now },
+        status: { [Op.ne]: 'completed' }
+      }
+    });
+    
+    return {
+      totalTasks,
+      completedTasks,
+      inProgressTasks,
+      incompleteTasks,
+      overdueTasks,
+      completionRate: totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0,
+      avgTimeSpentHours: avgTimeSpent,
+      avgEfficiency: avgEfficiency
+    };
   }
 }

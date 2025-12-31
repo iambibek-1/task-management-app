@@ -11,9 +11,15 @@ export interface InputTaskInterface{
     assignedTo?: number;
     assignedUserIds?: number[];
     dueDate?: Date;
+    estimatedHours?: number;
+    actualHours?: number;
+    startedAt?: Date;
+    completedAt?: Date;
 }
 export interface TaskInterface extends InputTaskInterface{
     id: number;
     assignedUsers?: any[];
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 export interface TaskModelInterface extends Sequelize.Model<TaskInterface, Partial<InputTaskInterface>>,TaskInterface{}

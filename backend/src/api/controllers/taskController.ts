@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { TaskService } from "../../services";
 import { PriorEnum, RoleEnum } from "../../enums";
 import { CustomRequestInterface } from "../../interfaces";
+import { UserRecommendationService } from "../../services/userRecommendationService";
 
 export class TaskController {
     public static async getTask(req:CustomRequestInterface, res:Response): Promise<Response>{
@@ -156,11 +157,13 @@ export class TaskController {
         })
     }
 
-    public static async completeTask (req:Request, res:Response): Promise<Response>{
+    public static async completeTask (req:CustomRequestInterface, res:Response): Promise<Response>{
         const id = parseInt(req.params.id);
+        const userId = req.user?.id;
+        const { notes } = req.body;
         
         try {
-            const updated = await new TaskService().completeTask(id);
+            const updated = await new TaskService().completeTask(id, userId!, notes);
             
             if(updated === false){
                 return res.status(404).json({
@@ -196,6 +199,127 @@ export class TaskController {
                 success: false,
                 status: 500,
                 message: error.message || `Could not complete task with id ${id}`,
+            });
+        }
+    }
+
+    public static async getTaskAnalytics(req: Request, res: Response): Promise<Response> {
+        try {
+            const analytics = await new TaskService().getTaskAnalytics();
+            
+            return res.status(200).json({
+                success: true,
+                status: 200,
+                message: "Task analytics retrieved successfully",
+                data: analytics,
+            });
+        } catch (error: any) {
+            return res.status(500).json({
+                success: false,
+                status: 500,
+                message: error.message || "Could not retrieve task analytics",
+            });
+        }
+    }
+
+    public static async getTaskRecommendations(req: Request, res: Response): Promise<Response> {
+        try {
+            const taskData = req.body;
+            const recommendations = await new TaskService().getTaskRecommendations(taskData);
+            
+            return res.status(200).json({
+                success: true,
+                status: 200,
+                message: "Task recommendations generated successfully",
+                data: recommendations,
+            });
+        } catch (error: any) {
+            return res.status(500).json({
+                success: false,
+                status: 500,
+                message: error.message || "Could not generate task recommendations",
+            });
+        }
+    }
+
+    public static async getUserPerformanceAnalytics(req: CustomRequestInterface, res: Response): Promise<Response> {
+        try {
+            const userId = req.params.userId ? parseInt(req.params.userId) : req.user?.id;
+            const analytics = await new TaskService().getUserPerformanceAnalytics(userId!);
+            
+            return res.status(200).json({
+                success: true,
+                status: 200,
+                message: "User performance analytics retrieved successfully",
+                data: analytics,
+            });
+        } catch (error: any) {
+            return res.status(500).json({
+                success: false,
+                status: 500,
+                message: error.message || "Could not retrieve user performance analytics",
+            });
+        }
+    }
+
+    public static async getTaskCompletionRecords(req: CustomRequestInterface, res: Response): Promise<Response> {
+        try {
+            const { userId, taskId, startDate, endDate } = req.query;
+            const filters: any = {};
+            
+            if (userId) filters.userId = parseInt(userId as string);
+            if (taskId) filters.taskId = parseInt(taskId as string);
+            if (startDate) filters.startDate = new Date(startDate as string);
+            if (endDate) filters.endDate = new Date(endDate as string);
+            
+            const records = await new TaskService().getTaskCompletionRecords(filters);
+            
+            return res.status(200).json({
+                success: true,
+                status: 200,
+                message: "Task completion records retrieved successfully",
+                data: records,
+            });
+        } catch (error: any) {
+            return res.status(500).json({
+                success: false,
+                status: 500,
+                message: error.message || "Could not retrieve task completion records",
+            });
+        }
+    }
+
+    public static async getUserRecommendations(req: Request, res: Response): Promise<Response> {
+        try {
+            const { title, description, priority, dueDate } = req.body;
+            
+            if (!title || !description) {
+                return res.status(400).json({
+                    success: false,
+                    status: 400,
+                    message: "Title and description are required for user recommendations",
+                });
+            }
+
+            const userRecommendationService = new UserRecommendationService();
+            const recommendations = await userRecommendationService.calculateUserSuitabilityScores({
+                title,
+                description,
+                priority: priority || 'low',
+                dueDate
+            });
+            
+            return res.status(200).json({
+                success: true,
+                status: 200,
+                message: "User recommendations generated successfully",
+                data: recommendations,
+            });
+        } catch (error: any) {
+            return res.status(500).json({
+                success: false,
+                status: 500,
+                message: error.message || "Could not generate user recommendations",
             });
         }
     }

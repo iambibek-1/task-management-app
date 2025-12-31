@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // API Configuration and Base Service
 const API_BASE_URL = 'http://localhost:3001/api/v1';
 
