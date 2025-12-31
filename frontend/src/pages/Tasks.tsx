@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback } from 'react';
 import { taskService } from '../services/taskService';
 import type { Task, CreateTaskData } from '../services/taskService';
@@ -23,6 +24,7 @@ export const Tasks = () => {
     taskId: null,
     taskTitle: '',
   });
+  const [isCreating, setIsCreating] = useState(false);
   
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.role === 'admin';
@@ -122,6 +124,7 @@ export const Tasks = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsCreating(true);
     
     if (editingTask) {
       const response = await taskService.updateTask(editingTask.id, formData);
@@ -142,6 +145,8 @@ export const Tasks = () => {
         closeModal();
       }
     }
+    
+    setIsCreating(false);
   };
 
   const openDeleteConfirm = (task: Task) => {
@@ -225,6 +230,7 @@ export const Tasks = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingTask(null);
+    setIsCreating(false);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -461,11 +467,18 @@ export const Tasks = () => {
           </div>
 
           <div className="form-actions">
-            <button type="button" onClick={closeModal} className="btn btn-secondary">
+            <button type="button" onClick={closeModal} className="btn btn-secondary" disabled={isCreating}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              {editingTask ? 'Update' : 'Create'}
+            <button type="submit" className="btn btn-primary" disabled={isCreating}>
+              {isCreating ? (
+                <>
+                  <span className="spinner"></span>
+                  {editingTask ? 'Updating...' : 'Creating...'}
+                </>
+              ) : (
+                editingTask ? 'Update' : 'Create'
+              )}
             </button>
           </div>
         </form>
