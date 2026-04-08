@@ -152,7 +152,7 @@ export class TaskRecommendationService {
               required: true
             }],
             where: {
-              status: { [Op.in]: ['incompleted', 'inProgress'] }
+              status: { [Op.in]: ['incomplete', 'inProgress'] }
             }
           });
           

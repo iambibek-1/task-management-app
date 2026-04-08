@@ -1,12 +1,21 @@
 import { Request, Response } from "express";
 import { UserService } from "../../services";
 import { jwtSecret } from "../../config";
+import { RoleEnum } from "../../enums";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 export class AuthController {
   public static async signup(req: Request, res: Response): Promise<Response> {
     const UserData = req.body;
+
+    // Prevent admin signup through public registration
+    if (UserData.role && UserData.role === 'admin') {
+      return res.status(403).json({
+        message: "Admin accounts cannot be created through public signup",
+        success: false,
+      });
+    }
 
     const userExist = await new UserService().findOne(UserData.email);
     if (userExist) {
@@ -22,7 +31,7 @@ export class AuthController {
       lastName: UserData.lastName,
       email: UserData.email,
       password: hashedPassword,
-      role: UserData.role || 'user',
+      role: RoleEnum.user, // Force role to be 'user' for public signup
     });
     
     // Generate token for auto-login after signup

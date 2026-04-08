@@ -5,7 +5,7 @@ export interface Task {
   id: number;
   title: string;
   description: string;
-  status: 'completed' | 'inProgress' | 'incompleted';
+  status: 'completed' | 'inProgress' | 'incomplete';
   priority: 'low' | 'medium' | 'high';
   assignedUsers?: {
     id: number;
@@ -25,7 +25,7 @@ export interface Task {
 export interface CreateTaskData {
   title: string;
   description: string;
-  status?: 'completed' | 'inProgress' | 'incompleted';
+  status?: 'completed' | 'inProgress' | 'incomplete';
   priority?: 'low' | 'medium' | 'high';
   assignedUserIds?: number[];
   dueDate?: string;
@@ -34,7 +34,7 @@ export interface CreateTaskData {
 export interface UpdateTaskData {
   title?: string;
   description?: string;
-  status?: 'completed' | 'inProgress' | 'incompleted';
+  status?: 'completed' | 'inProgress' | 'incomplete';
   priority?: 'low' | 'medium' | 'high';
   assignedUserIds?: number[];
   dueDate?: string;
@@ -147,6 +147,10 @@ export const taskService = {
 
   async updateTask(id: number, data: UpdateTaskData) {
     return api.put<Task>(`/task/${id}`, data);
+  },
+
+  async updateTaskStatus(id: number, status: 'incomplete' | 'inProgress' | 'completed') {
+    return api.patch<Task>(`/task/${id}/status`, { status });
   },
 
   async deleteTask(id: number) {

@@ -86,7 +86,9 @@ export const SmartUserSelection: React.FC<SmartUserSelectionProps> = ({
     <div className="assign-to-section">
       <label className="assign-to-label">Assign To</label>
       <div className="user-selection-list">
-        {sortedUsers.map((user) => {
+        {sortedUsers
+          .filter(user => user.role !== 'admin') // Additional safety filter to exclude admin users
+          .map((user) => {
           const userRec = user.recommendation;
           const isSelected = selectedUserIds.includes(user.id);
           

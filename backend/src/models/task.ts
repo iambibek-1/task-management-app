@@ -23,9 +23,9 @@ const Task = sequelize.define<TaskModelInterface>('Task', {
         allowNull: false,
       },
       status: {
-        type: Sequelize.ENUM("completed","inProgress", "incompleted"),
+        type: Sequelize.ENUM("completed","inProgress", "incomplete"),
         allowNull: false,
-        defaultValue: "incompleted",
+        defaultValue: "incomplete",
       },
       priority: {
         type: Sequelize.ENUM("low", "medium", "high"),

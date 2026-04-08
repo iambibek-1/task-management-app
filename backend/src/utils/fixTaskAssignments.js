@@ -50,7 +50,7 @@ async function fixTaskAssignments() {
     // Create a test task
     const [taskResult] = await sequelize.query(`
       INSERT INTO Tasks (title, description, status, priority, createdAt, updatedAt) 
-      VALUES ('Test Assignment Task', 'Testing task assignment functionality', 'incompleted', 'medium', NOW(), NOW())
+      VALUES ('Test Assignment Task', 'Testing task assignment functionality', 'incomplete', 'medium', NOW(), NOW())
     `);
     
     const taskId = taskResult.insertId;

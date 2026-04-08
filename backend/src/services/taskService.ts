@@ -1,7 +1,7 @@
 import Models from "../models";
 import { TaskInterface, InputTaskInterface } from "../interfaces";
 import { Model, Op } from "sequelize";
-import { PriorEnum } from "../enums";
+import { PriorEnum, StatusEnum } from "../enums";
 import { EmailService } from "./emailService";
 import { TaskRecommendationService } from "./taskRecommendationService";
 
@@ -17,12 +17,56 @@ export class TaskService {
   public async createTask(data: InputTaskInterface): Promise<any> {
     const { assignedUserIds, ...taskData } = data;
     
+    // Force status to be 'incomplete' for new tasks
+    taskData.status = StatusEnum.incomplete;
+    
+    // If no users are assigned, automatically assign the best recommended user
+    let finalAssignedUserIds = assignedUserIds;
+    if (!assignedUserIds || assignedUserIds.length === 0) {
+      const { UserRecommendationService } = await import('./userRecommendationService');
+      const userRecommendationService = new UserRecommendationService();
+      
+      try {
+        const recommendations = await userRecommendationService.calculateUserSuitabilityScores({
+          title: taskData.title,
+          description: taskData.description,
+          priority: taskData.priority,
+          dueDate: taskData.dueDate ? taskData.dueDate.toString() : undefined
+        });
+        
+        if (recommendations.length > 0) {
+          // Assign the highest recommended user
+          const bestUser = recommendations[0];
+          finalAssignedUserIds = [bestUser.userId];
+          console.log(`Auto-assigned task "${taskData.title}" to user ${bestUser.user.firstName} ${bestUser.user.lastName} (${bestUser.score}% match)`);
+        }
+      } catch (error) {
+        console.error('Error getting user recommendations for auto-assignment:', error);
+      }
+    }
+    
+    // Additional validation: Ensure no admin users are being assigned
+    if (finalAssignedUserIds && finalAssignedUserIds.length > 0) {
+      const adminUsers = await Models.User.findAll({
+        where: { 
+          id: finalAssignedUserIds,
+          role: 'admin'
+        },
+        attributes: ['id', 'firstName', 'lastName']
+      });
+      
+      if (adminUsers.length > 0) {
+        const adminNames = adminUsers.map(u => `${u.firstName} ${u.lastName}`).join(', ');
+        throw new Error(`Cannot assign tasks to admin users: ${adminNames}`);
+      }
+    }
+    
     // Create the task
     const task = await Models.Task.create(taskData);
     
-    // Assign users if provided
-    if (assignedUserIds && assignedUserIds.length > 0) {
-      const assignments = assignedUserIds.map(userId => ({
+    // Assign users if provided or auto-assigned
+    if (finalAssignedUserIds && finalAssignedUserIds.length > 0) {
+      const assignments = finalAssignedUserIds.map(userId => ({
         taskId: task.id,
         userId: userId,
       }));
@@ -30,7 +74,7 @@ export class TaskService {
       
       // Fetch assigned users for email notification
       const assignedUsers = await Models.User.findAll({
-        where: { id: assignedUserIds },
+        where: { id: finalAssignedUserIds },
         attributes: ['id', 'firstName', 'lastName', 'email']
       });
       
@@ -58,6 +102,22 @@ export class TaskService {
     return taskWithUsers;
   }
 
+  public async updateTaskStatus(
+    id: number,
+    status: StatusEnum
+  ): Promise<boolean> {
+    try {
+      const [affectedRows] = await Models.Task.update(
+        { status },
+        { where: { id } }
+      );
+      return affectedRows > 0;
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      return false;
+    }
+  }
+
   public async updateTask(
     id: number,
     data: InputTaskInterface
@@ -77,6 +137,22 @@ export class TaskService {
     }
 
     const { assignedUserIds, ...taskData } = data;
+    
+    // Additional validation: Ensure no admin users are being assigned
+    if (assignedUserIds && assignedUserIds.length > 0) {
+      const adminUsers = await Models.User.findAll({
+        where: { 
+          id: assignedUserIds,
+          role: 'admin'
+        },
+        attributes: ['id', 'firstName', 'lastName']
+      });
+      
+      if (adminUsers.length > 0) {
+        const adminNames = adminUsers.map(u => `${u.firstName} ${u.lastName}`).join(', ');
+        throw new Error(`Cannot assign tasks to admin users: ${adminNames}`);
+      }
+    }
     
     // Update task data
     await Models.Task.update(taskData, {
@@ -177,7 +253,15 @@ export class TaskService {
 
   public async completeTask(id: number, userId: number, notes?: string): Promise<boolean> {
     // Check if task exists first
-    const existingTask = await Models.Task.findByPk(id);
+    const existingTask = await Models.Task.findByPk(id, {
+      include: [{
+        model: Models.User,
+        as: 'assignedUsers',
+        attributes: ['id', 'firstName', 'lastName', 'email'],
+        through: { attributes: [] }
+      }]
+    });
+    
     if (!existingTask) {
       return false;
     }
@@ -222,6 +306,30 @@ export class TaskService {
       efficiency: efficiency,
       notes: notes || undefined
     });
+    
+    // Send completion notification emails to all assigned users (except the one who completed it)
+    const assignedUsers = (existingTask as any).assignedUsers || [];
+    const completedByUser = await Models.User.findByPk(userId);
+    
+    if (assignedUsers.length > 0 && completedByUser) {
+      const otherUsers = assignedUsers.filter((user: any) => user.id !== userId);
+      
+      // Send emails to other assigned users
+      const emailPromises = otherUsers.map((user: any) =>
+        this.emailService.sendTaskCompletionEmail(
+          user.email,
+          `${user.firstName} ${user.lastName}`,
+          existingTask.title,
+          `${completedByUser.firstName} ${completedByUser.lastName}`
+        )
+      );
+      
+      try {
+        await Promise.allSettled(emailPromises);
+      } catch (error) {
+        console.error('Error sending completion notification emails:', error);
+      }
+    }
     
     return true;
   }
@@ -371,7 +479,7 @@ export class TaskService {
     const totalTasks = await Models.Task.count();
     const completedTasks = await Models.Task.count({ where: { status: 'completed' } });
     const inProgressTasks = await Models.Task.count({ where: { status: 'inProgress' } });
-    const incompleteTasks = await Models.Task.count({ where: { status: 'incompleted' } });
+    const incompleteTasks = await Models.Task.count({ where: { status: 'incomplete' } });
     
     // Average completion time
     const completions = await Models.TaskCompletion.findAll({

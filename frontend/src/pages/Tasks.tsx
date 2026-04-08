@@ -9,8 +9,9 @@ import { Notification } from '../components/Notification';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { TruncatedText } from '../components/TruncatedText';
 import { TaskCompletionModal } from '../components/TaskCompletionModal';
-import { TaskRecommendations } from '../components/TaskRecommendations';
-import { SmartUserSelection } from '../components/SmartUserSelection';
+import { DueDateRecommendations } from '../components/DueDateRecommendations';
+import { OtherTaskRecommendations } from '../components/OtherTaskRecommendations';
+import { AutoAssignmentPreview } from '../components/AutoAssignmentPreview';
 import { Plus, Edit2, Trash2, Filter, CheckCircle, Clock } from 'lucide-react';
 
 export const Tasks = () => {
@@ -20,7 +21,6 @@ export const Tasks = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [filterPriority, setFilterPriority] = useState<'all' | 'low' | 'medium' | 'high'>('all');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
-  const [users, setUsers] = useState<any[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; taskId: number | null; taskTitle: string }>({
     isOpen: false,
@@ -44,7 +44,7 @@ export const Tasks = () => {
   const [formData, setFormData] = useState<CreateTaskData>({
     title: '',
     description: '',
-    status: 'incompleted',
+    status: 'incomplete', // Always start as incomplete
     priority: 'low',
     dueDate: '',
     assignedUserIds: [],
@@ -66,18 +66,8 @@ export const Tasks = () => {
     }
   }, [filterPriority]);
 
-  const loadUsers = useCallback(async () => {
-    const { userService } = await import('../services/userService');
-    const response = await userService.getUsers();
-    if (response.data) {
-      const usersData = (response.data as any).data || response.data;
-      setUsers(Array.isArray(usersData) ? usersData : []);
-    }
-  }, []);
-
   useEffect(() => {
     loadTasks();
-    loadUsers();
     
     // Initialize socket connection
     const socket = socketService.connect();
@@ -133,7 +123,7 @@ export const Tasks = () => {
         socket.off('disconnect');
       };
     }
-  }, [loadTasks, loadUsers]);
+  }, [loadTasks]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,6 +180,16 @@ export const Tasks = () => {
     }
   };
 
+  const handleMarkInProgress = async (taskId: number) => {
+    const response = await taskService.updateTaskStatus(taskId, 'inProgress');
+    if (response.error) {
+      setNotification({ message: response.error, type: 'error' });
+    } else {
+      setNotification({ message: 'Task marked as in progress!', type: 'success' });
+      loadTasks();
+    }
+  };
+
   const handleComplete = async (taskId: number, taskTitle: string) => {
     setCompletionModal({
       isOpen: true,
@@ -235,7 +235,7 @@ export const Tasks = () => {
       setFormData({
         title: '',
         description: '',
-        status: 'incompleted',
+        status: 'incomplete', // Always start as incomplete for new tasks
         priority: 'low',
         dueDate: '',
         assignedUserIds: [],
@@ -244,18 +244,10 @@ export const Tasks = () => {
     setIsModalOpen(true);
   };
 
-  const handleUserSelection = (userId: number) => {
-    const currentIds = formData.assignedUserIds || [];
-    if (currentIds.includes(userId)) {
-      setFormData({
-        ...formData,
-        assignedUserIds: currentIds.filter(id => id !== userId),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        assignedUserIds: [...currentIds, userId],
-      });
+  const handleRecommendationReady = (userId: number | null) => {
+    // Auto-assign the recommended user
+    if (userId) {
+      setFormData(prev => ({ ...prev, assignedUserIds: [userId] }));
     }
   };
 
@@ -300,7 +292,7 @@ export const Tasks = () => {
     switch (status) {
       case 'completed': return 'status-completed';
       case 'inProgress': return 'status-progress';
-      case 'incompleted': return 'status-incomplete';
+      case 'incomplete': return 'status-incomplete';
       default: return '';
     }
   };
@@ -359,6 +351,15 @@ export const Tasks = () => {
               <div className="card-header">
                 <h3>{task.title}</h3>
                 <div className="card-actions">
+                  {task.status !== 'completed' && task.status !== 'inProgress' && !isAdmin && (
+                    <button 
+                      onClick={() => handleMarkInProgress(task.id)} 
+                      className="btn-icon btn-warning" 
+                      title="Mark as In Progress"
+                    >
+                      <Clock size={18} />
+                    </button>
+                  )}
                   {task.status !== 'completed' && (
                     <button 
                       onClick={() => handleComplete(task.id, task.title)} 
@@ -473,32 +474,17 @@ export const Tasks = () => {
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="status">Status</label>
-              <select
-                id="status"
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-              >
-                <option value="incompleted">Incomplete</option>
-                <option value="inProgress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="priority">Priority</label>
-              <select
-                id="priority"
-                value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
+          <div className="form-group">
+            <label htmlFor="priority">Priority</label>
+            <select
+              id="priority"
+              value={formData.priority}
+              onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
           </div>
 
           <div className="form-group">
@@ -509,22 +495,26 @@ export const Tasks = () => {
               value={formData.dueDate}
               onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
             />
+            
+            {/* Due Date Recommendations - Show only due date recommendations right below the date input */}
+            {!editingTask && formData.title && formData.description && (
+              <DueDateRecommendations
+                taskData={formData}
+                onApplyRecommendation={handleApplyRecommendation}
+              />
+            )}
           </div>
 
-          <SmartUserSelection
-            users={users}
-            selectedUserIds={formData.assignedUserIds || []}
-            onUserSelection={handleUserSelection}
-            taskData={{
-              title: formData.title,
-              description: formData.description,
-              priority: formData.priority,
-              dueDate: formData.dueDate
-            }}
-          />
+          {/* Auto Assignment Preview - Show recommended user */}
+          {!editingTask && formData.title && formData.description && (
+            <AutoAssignmentPreview
+              taskData={formData}
+              onRecommendationReady={handleRecommendationReady}
+            />
+          )}
 
           {!editingTask && formData.title && formData.description && (
-            <TaskRecommendations
+            <OtherTaskRecommendations
               taskData={formData}
               onApplyRecommendation={handleApplyRecommendation}
             />

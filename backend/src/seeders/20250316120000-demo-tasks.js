@@ -24,7 +24,7 @@ module.exports = {
       {
         title: 'Review pull requests',
         description: 'Review and merge pending pull requests from team members',
-        status: 'incompleted',
+        status: 'incomplete',
         priority: 'medium',
         assignedTo: userId,
         dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
@@ -32,7 +32,7 @@ module.exports = {
       {
         title: 'Team meeting preparation',
         description: 'Prepare slides and agenda for weekly team meeting',
-        status: 'incompleted',
+        status: 'incomplete',
         priority: 'low',
         assignedTo: userId,
         dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
@@ -48,7 +48,7 @@ module.exports = {
       {
         title: 'Code refactoring',
         description: 'Refactor authentication module for better maintainability',
-        status: 'incompleted',
+        status: 'incomplete',
         priority: 'medium',
         assignedTo: userId,
         dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
@@ -56,7 +56,7 @@ module.exports = {
       {
         title: 'Database optimization',
         description: 'Optimize database queries and add proper indexes',
-        status: 'incompleted',
+        status: 'incomplete',
         priority: 'medium',
         assignedTo: userId,
         dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
@@ -64,7 +64,7 @@ module.exports = {
       {
         title: 'Security audit',
         description: 'Perform security audit and fix vulnerabilities',
-        status: 'incompleted',
+        status: 'incomplete',
         priority: 'high',
         assignedTo: userId,
         dueDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days from now
@@ -72,7 +72,7 @@ module.exports = {
       {
         title: 'UI improvements',
         description: 'Implement user feedback for UI enhancements',
-        status: 'incompleted',
+        status: 'incomplete',
         priority: 'low',
         assignedTo: userId,
         dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now

@@ -1469,6 +1469,13 @@ body {
 .page-header-left {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .connection-status {
@@ -1843,5 +1850,312 @@ body {
   
   .recommendation-text {
     font-size: 0.75rem;
+  }
+}
+
+/* Due Date Recommendations - Compact styling for inline display */
+.due-date-recommendations {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(0, 101, 255, 0.05);
+  border: 1px solid rgba(0, 101, 255, 0.15);
+  border-radius: var(--radius);
+}
+
+.due-date-recommendation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.due-date-recommendation-item:not(:last-child) {
+  border-bottom: 1px solid rgba(0, 101, 255, 0.1);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
+}
+
+.recommendation-message-small {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  line-height: 1.3;
+  flex: 1;
+}
+
+.applied-indicator-small {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.btn-xs {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: calc(var(--radius) * 0.75);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* Responsive adjustments for due date recommendations */
+@media (max-width: 480px) {
+  .due-date-recommendation-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .recommendation-message-small {
+    font-size: 0.75rem;
+  }
+}
+/* Auto Assignment Preview */
+.auto-assignment-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(0, 123, 255, 0.05);
+  border: 1px solid rgba(0, 123, 255, 0.15);
+  border-radius: var(--radius-lg);
+}
+
+.auto-assignment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.auto-assignment-header h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin: 0;
+  flex: 1;
+}
+
+.recommended-user {
+  background: var(--bg-primary);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  transition: var(--transition);
+}
+
+.recommended-user.approved {
+  border-color: var(--success);
+  background: rgba(0, 135, 90, 0.05);
+}
+
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.user-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.user-score {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.recommendation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.recommendation-level {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.recommendation-level.highly-recommended {
+  color: var(--success);
+}
+
+.recommendation-level.recommended {
+  color: var(--primary);
+}
+
+.recommendation-level.suitable {
+  color: var(--warning);
+}
+
+.recommendation-reason {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.approve-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.approved-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.no-recommendation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(255, 139, 0, 0.1);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  color: var(--warning);
+}
+
+.other-recommendations {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.other-recommendations details {
+  cursor: pointer;
+}
+
+.other-recommendations summary {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.other-users-list {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.other-user {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  transition: var(--transition);
+}
+
+.other-user.clickable {
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.other-user.clickable:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--primary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.other-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.other-user-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.other-user-details {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.other-user-score {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.select-user-btn {
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.other-user.clickable:hover .select-user-btn {
+  opacity: 1;
+}
+
+.btn-xs {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* In Progress Button */
+.btn-icon.btn-warning {
+  color: var(--warning);
+  background: transparent;
+  transition: var(--transition);
+}
+
+.btn-icon.btn-warning:hover {
+  background: rgba(255, 139, 0, 0.1);
+  color: #d97706;
+  transform: scale(1.1);
+}
+
+.btn-icon.btn-warning svg {
+  color: var(--warning);
+}
+
+/* Responsive adjustments for auto assignment */
+@media (max-width: 480px) {
+  .auto-assignment-preview {
+    padding: 0.75rem;
+  }
+  
+  .user-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .recommendation-details {
+    margin-bottom: 0.5rem;
   }
 }

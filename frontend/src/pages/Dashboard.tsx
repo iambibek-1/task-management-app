@@ -91,7 +91,7 @@ export const Dashboard = () => {
       const now = new Date();
       const completed = tasks.filter((t: Task) => t.status === 'completed').length;
       const inProgress = tasks.filter((t: Task) => t.status === 'inProgress').length;
-      const incomplete = tasks.filter((t: Task) => t.status === 'incompleted').length;
+      const incomplete = tasks.filter((t: Task) => t.status === 'incomplete').length;
       const overdue = tasks.filter((t: Task) => 
         t.dueDate && new Date(t.dueDate) < now && t.status !== 'completed'
       ).length;
@@ -122,7 +122,7 @@ export const Dashboard = () => {
       const now = new Date();
       const completed = tasksList.filter((t: Task) => t.status === 'completed').length;
       const inProgress = tasksList.filter((t: Task) => t.status === 'inProgress').length;
-      const incomplete = tasksList.filter((t: Task) => t.status === 'incompleted').length;
+      const incomplete = tasksList.filter((t: Task) => t.status === 'incomplete').length;
       const overdue = tasksList.filter((t: Task) => 
         t.dueDate && new Date(t.dueDate) < now && t.status !== 'completed'
       ).length;

@@ -61,7 +61,7 @@ taskRoutes.get('/',exceptionHandler(TaskController.getTask));
  *                 type: string
  *               status:
  *                 type: string
- *                 enum: [completed, inProgress, incompleted]
+ *                 enum: [completed, inProgress, incomplete]
  *               priority:
  *                 type: string
  *                 enum: [low, medium, high]
@@ -167,6 +167,22 @@ taskRoutes.patch('/:id/complete', exceptionHandler(TaskController.completeTask))
 
 /**
  * @swagger
+ * /task/test-email:
+ *   post:
+ *     summary: Send a test email to verify email service configuration
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Test email sent successfully
+ *       500:
+ *         description: Failed to send test email
+ */
+taskRoutes.post('/test-email', exceptionHandler(TaskController.testEmailService));
+
+/**
+ * @swagger
  * /task/user-recommendations:
  *   post:
  *     summary: Get user recommendations for task assignment using WUSS algorithm
@@ -200,17 +216,6 @@ taskRoutes.patch('/:id/complete', exceptionHandler(TaskController.completeTask))
  *         description: User recommendations generated successfully
  */
 taskRoutes.post('/user-recommendations', Guard.requireAdmin, exceptionHandler(TaskController.getUserRecommendations));
-
-// Test endpoint for WUSS algorithm (remove in production)
-taskRoutes.get('/test-wuss', Guard.requireAdmin, async (_req: Request, res: Response) => {
-  try {
-    const { testWUSSAlgorithm } = await import('../../utils/testWUSS');
-    await testWUSSAlgorithm();
-    res.json({ success: true, message: 'WUSS test completed - check server logs' });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
 
 /**
  * @swagger
@@ -348,7 +353,7 @@ taskRoutes.get('/user-analytics/:userId?', exceptionHandler(TaskController.getUs
  *                 type: string
  *               status:
  *                 type: string
- *                 enum: [completed, inProgress, incompleted]
+ *                 enum: [completed, inProgress, incomplete]
  *               priority:
  *                 type: string
  *                 enum: [low, medium, high]
@@ -368,6 +373,44 @@ taskRoutes.get('/user-analytics/:userId?', exceptionHandler(TaskController.getUs
  *         description: Task updated successfully
  */
 taskRoutes.put('/:id', Guard.requireAdmin, exceptionHandler(TaskController.updateTask));
+
+/**
+ * @swagger
+ * /task/{id}/status:
+ *   patch:
+ *     summary: Update task status (Users can update their assigned tasks)
+ *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Task ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [incomplete, inProgress, completed]
+ *                 description: New task status
+ *             required:
+ *               - status
+ *     responses:
+ *       200:
+ *         description: Task status updated successfully
+ *       403:
+ *         description: Access denied - not assigned to this task
+ *       404:
+ *         description: Task not found
+ */
+taskRoutes.patch('/:id/status', Guard.authenticate, exceptionHandler(TaskController.updateTaskStatus));
 
 /**
  * @swagger

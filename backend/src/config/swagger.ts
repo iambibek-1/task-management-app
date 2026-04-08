@@ -43,7 +43,7 @@ const options: swaggerJsdoc.Options = {
             id: { type: 'integer', example: 1 },
             title: { type: 'string', example: 'Complete project documentation' },
             description: { type: 'string', example: 'Write comprehensive API documentation' },
-            status: { type: 'string', enum: ['completed', 'inProgress', 'incompleted'], example: 'inProgress' },
+            status: { type: 'string', enum: ['completed', 'inProgress', 'incomplete'], example: 'inProgress' },
             priority: { type: 'string', enum: ['low', 'medium', 'high'], example: 'high' },
             assignedUsers: { 
               type: 'array', 

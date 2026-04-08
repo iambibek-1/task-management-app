@@ -11,8 +11,22 @@ export class UserService{
         });
         return data;
     }
+
+    public async findById(id:number):Promise<UserInterface | null>{
+        const data = await Models.User.findByPk(id);
+        return data;
+    }
     public async findAll():Promise<any>{
         const data = await Models.User.findAll();
+        return data;
+    }
+
+    public async findAllNonAdminUsers():Promise<any>{
+        const data = await Models.User.findAll({
+            where: {
+                role: 'user'
+            }
+        });
         return data;
     }
 

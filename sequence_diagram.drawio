@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2025-01-27T00:00:00.000Z" agent="5.0" etag="taskflow-seq-2025" version="24.7.17" type="device">
+  <diagram name="TaskFlow AI-Powered Sequence Diagram" id="sequence-diagram">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="TaskFlow AI-Powered Task Management - Complete Workflow" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="600" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Actors -->
+        <mxCell id="admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="80" y="50" width="30" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="user" value="User" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="160" y="50" width="30" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Systems -->
+        <mxCell id="frontend" value="React Frontend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="240" y="70" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="backend" value="Node.js Backend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="380" y="70" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="wuss" value="WUSS AI Engine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="520" y="70" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="database" value="MySQL DB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="660" y="60" width="80" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="socketio" value="Socket.IO" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="780" y="70" width="80" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Lifelines -->
+        <mxCell id="adminLifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="95" y="130" as="sourcePoint" />
+            <mxPoint x="95" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="userLifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="175" y="130" as="sourcePoint" />
+            <mxPoint x="175" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="frontendLifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="130" as="sourcePoint" />
+            <mxPoint x="290" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="backendLifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="130" as="sourcePoint" />
+            <mxPoint x="430" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="wussLifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="570" y="130" as="sourcePoint" />
+            <mxPoint x="570" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="databaseLifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="700" y="130" as="sourcePoint" />
+            <mxPoint x="700" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="socketLifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="820" y="130" as="sourcePoint" />
+            <mxPoint x="820" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Phase 1: Authentication -->
+        <mxCell id="phase1" value="Phase 1: Authentication" style="text;html=1;strokeColor=none;fillColor=#f0f0f0;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="150" width="150" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 1. Admin Login -->
+        <mxCell id="msg1" value="Login Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="95" y="200" as="sourcePoint" />
+            <mxPoint x="290" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2. Authentication Request -->
+        <mxCell id="msg2" value="Authentication Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="230" as="sourcePoint" />
+            <mxPoint x="430" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 3. Validate Credentials -->
+        <mxCell id="msg3" value="Validate Credentials" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="260" as="sourcePoint" />
+            <mxPoint x="700" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 4. User Data Response -->
+        <mxCell id="msg4" value="User Data Response" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="700" y="290" as="sourcePoint" />
+            <mxPoint x="430" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 5. JWT Token Response -->
+        <mxCell id="msg5" value="JWT Token Response" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="320" as="sourcePoint" />
+            <mxPoint x="290" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 6. Login Success -->
+        <mxCell id="msg6" value="Login Success" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="350" as="sourcePoint" />
+            <mxPoint x="95" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Phase 2: AI-Powered Task Creation -->
+        <mxCell id="phase2" value="Phase 2: AI-Powered Task Creation" style="text;html=1;strokeColor=none;fillColor=#f0f0f0;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="380" width="200" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 7. Create Task Request -->
+        <mxCell id="msg7" value="Create Task Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="95" y="430" as="sourcePoint" />
+            <mxPoint x="290" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 8. User Recommendations Request -->
+        <mxCell id="msg8" value="User Recommendations Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="460" as="sourcePoint" />
+            <mxPoint x="430" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 9. Fetch User Data -->
+        <mxCell id="msg9" value="Fetch User Performance Data" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="490" as="sourcePoint" />
+            <mxPoint x="700" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 10. User Data Response -->
+        <mxCell id="msg10" value="User Performance Response" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="700" y="520" as="sourcePoint" />
+            <mxPoint x="430" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 11. WUSS Algorithm Processing -->
+        <mxCell id="msg11" value="WUSS Algorithm Processing" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="550" as="sourcePoint" />
+            <mxPoint x="570" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 12. WUSS Calculation Box -->
+        <mxCell id="wussBox" value="WUSS Score Calculation:&#xa;• Performance Score (30%)&#xa;• Workload Score (25%)&#xa;• Availability Score (20%)&#xa;• Skill Match Score (15%)&#xa;• Priority Handling (10%)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;" vertex="1" parent="1">
+          <mxGeometry x="480" y="580" width="180" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- 13. WUSS Scores Response -->
+        <mxCell id="msg13" value="WUSS Scores Response" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="570" y="710" as="sourcePoint" />
+            <mxPoint x="430" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 14. AI Recommendations Response -->
+        <mxCell id="msg14" value="AI Recommendations Response" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="740" as="sourcePoint" />
+            <mxPoint x="290" y="740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 15. Display Smart Recommendations -->
+        <mxCell id="msg15" value="Display Smart Recommendations" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="770" as="sourcePoint" />
+            <mxPoint x="95" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 16. Task Creation Request -->
+        <mxCell id="msg16" value="Task Creation Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="95" y="800" as="sourcePoint" />
+            <mxPoint x="290" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 17. Save Task Request -->
+        <mxCell id="msg17" value="Save Task Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="830" as="sourcePoint" />
+            <mxPoint x="430" y="830" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 18. Store Task & Assignments -->
+        <mxCell id="msg18" value="Store Task & Assignments" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="860" as="sourcePoint" />
+            <mxPoint x="700" y="860" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 19. Task Saved Response -->
+        <mxCell id="msg19" value="Task Saved Response" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="700" y="890" as="sourcePoint" />
+            <mxPoint x="430" y="890" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Phase 3: Real-time Notifications -->
+        <mxCell id="phase3" value="Phase 3: Real-time Notifications" style="text;html=1;strokeColor=none;fillColor=#f0f0f0;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="920" width="200" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 20. Socket.IO Broadcast -->
+        <mxCell id="msg20" value="Real-time Task Created Event" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="970" as="sourcePoint" />
+            <mxPoint x="820" y="970" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 21. Notify Assigned Users -->
+        <mxCell id="msg21" value="Notify Assigned Users" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="820" y="1000" as="sourcePoint" />
+            <mxPoint x="175" y="1000" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 22. Real-time UI Update -->
+        <mxCell id="msg22" value="Real-time UI Update" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="1030" as="sourcePoint" />
+            <mxPoint x="175" y="1030" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Phase 4: Task Completion & Analytics -->
+        <mxCell id="phase4" value="Phase 4: Task Completion & Analytics" style="text;html=1;strokeColor=none;fillColor=#f0f0f0;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1060" width="220" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 23. Complete Task Request -->
+        <mxCell id="msg23" value="Complete Task Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="175" y="1110" as="sourcePoint" />
+            <mxPoint x="290" y="1110" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 24. Task Completion Request -->
+        <mxCell id="msg24" value="Task Completion Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="1140" as="sourcePoint" />
+            <mxPoint x="430" y="1140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 25. Auto Time Calculation -->
+        <mxCell id="msg25" value="Auto Time Calculation & Performance Update" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="1170" as="sourcePoint" />
+            <mxPoint x="700" y="1170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 26. Performance Analytics Update -->
+        <mxCell id="analyticsBox" value="Performance Analytics Update:&#xa;• Calculate efficiency ratio&#xa;• Update completion rate&#xa;• Store task completion record&#xa;• Update WUSS scores" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;" vertex="1" parent="1">
+          <mxGeometry x="610" y="1200" width="180" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- 27. Completion Saved Response -->
+        <mxCell id="msg27" value="Completion Saved Response" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="700" y="1310" as="sourcePoint" />
+            <mxPoint x="430" y="1310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 28. Real-time Completion Event -->
+        <mxCell id="msg28" value="Real-time Completion Event" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="1340" as="sourcePoint" />
+            <mxPoint x="820" y="1340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 29. Notify Admin -->
+        <mxCell id="msg29" value="Notify Admin of Completion" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="820" y="1370" as="sourcePoint" />
+            <mxPoint x="95" y="1370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 30. Analytics Request -->
+        <mxCell id="msg30" value="Performance Analytics Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="95" y="1400" as="sourcePoint" />
+            <mxPoint x="290" y="1400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 31. Analytics Data Request -->
+        <mxCell id="msg31" value="Analytics Data Request" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="1430" as="sourcePoint" />
+            <mxPoint x="430" y="1430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 32. Analytics Data Response -->
+        <mxCell id="msg32" value="Analytics Data Response" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="430" y="1460" as="sourcePoint" />
+            <mxPoint x="290" y="1460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 33. Display Analytics -->
+        <mxCell id="msg33" value="Display Performance Analytics" style="endArrow=classic;html=1;rounded=0;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="1490" as="sourcePoint" />
+            <mxPoint x="95" y="1490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

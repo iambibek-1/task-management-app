@@ -29,6 +29,10 @@ export const userService = {
     return api.get<User[]>('/user');
   },
 
+  async getAllUsers() {
+    return api.get<User[]>('/user/all');
+  },
+
   async createUser(data: CreateUserData) {
     return api.post<User>('/user', data);
   },

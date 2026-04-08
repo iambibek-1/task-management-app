@@ -26,6 +26,7 @@ export class UserRecommendationService {
   /**
    * Weighted User Suitability Scoring (WUSS) Algorithm
    * Calculates user suitability based on multiple weighted factors
+   * Note: Admin users are excluded from task assignment recommendations
    */
   public async calculateUserSuitabilityScores(taskData: {
     title: string;
@@ -202,7 +203,7 @@ export class UserRecommendationService {
           through: { attributes: [] }
         }],
         where: {
-          status: { [Op.in]: ['incompleted', 'inProgress'] }
+          status: { [Op.in]: ['incomplete', 'inProgress'] }
         }
       });
 
@@ -216,7 +217,7 @@ export class UserRecommendationService {
           through: { attributes: [] }
         }],
         where: {
-          status: { [Op.in]: ['incompleted', 'inProgress'] },
+          status: { [Op.in]: ['incomplete', 'inProgress'] },
           dueDate: { [Op.lt]: new Date() }
         }
       });

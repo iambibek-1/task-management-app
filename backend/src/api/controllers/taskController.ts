@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { TaskService } from "../../services";
-import { PriorEnum, RoleEnum } from "../../enums";
+import { PriorEnum, RoleEnum, StatusEnum } from "../../enums";
 import { CustomRequestInterface } from "../../interfaces";
 import { UserRecommendationService } from "../../services/userRecommendationService";
 
@@ -54,6 +54,23 @@ export class TaskController {
                 taskData.assignedUserIds = [taskData.assignedUserIds];
             }
             
+            // Validate that no admin users are being assigned to tasks
+            if (taskData.assignedUserIds && taskData.assignedUserIds.length > 0) {
+                const { UserService } = await import('../../services/userService');
+                const userService = new UserService();
+                
+                for (const userId of taskData.assignedUserIds) {
+                    const user = await userService.findById(userId);
+                    if (user && user.role === 'admin') {
+                        return res.status(400).json({
+                            success: false,
+                            status: 400,
+                            message: `Cannot assign tasks to admin users. User ${user.firstName} ${user.lastName} is an admin.`,
+                        });
+                    }
+                }
+            }
+            
             const task = await new TaskService().createTask(taskData);
             
             // Emit socket event for real-time updates
@@ -84,11 +101,141 @@ export class TaskController {
         }
     }
 
+    public static async updateTaskStatus(req: CustomRequestInterface, res: Response): Promise<Response> {
+        const id = req.params.id as unknown as number;
+        const { status } = req.body;
+        const userId = req.user?.id;
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                status: 401,
+                message: "Authentication required",
+            });
+        }
+
+        try {
+            // Check if the task exists and if the user is assigned to it
+            const task = await new TaskService().findById(id);
+            
+            if (!task) {
+                return res.status(404).json({
+                    success: false,
+                    status: 404,
+                    message: `Task with id ${id} not found`,
+                });
+            }
+
+            // Check if the user is assigned to this task
+            const isAssigned = task.assignedUsers?.some((user: any) => user.id === userId);
+            
+            if (!isAssigned) {
+                return res.status(403).json({
+                    success: false,
+                    status: 403,
+                    message: "Access denied. You can only update tasks assigned to you.",
+                });
+            }
+
+            // Validate status value
+            const validStatuses = ['incomplete', 'inProgress', 'completed'];
+            if (!validStatuses.includes(status)) {
+                return res.status(400).json({
+                    success: false,
+                    status: 400,
+                    message: "Invalid status. Must be one of: incomplete, inProgress, completed",
+                });
+            }
+
+            // Convert string to StatusEnum
+            let statusEnum: StatusEnum;
+            switch (status) {
+                case 'incomplete':
+                    statusEnum = StatusEnum.incomplete;
+                    break;
+                case 'inProgress':
+                    statusEnum = StatusEnum.inProgress;
+                    break;
+                case 'completed':
+                    statusEnum = StatusEnum.completed;
+                    break;
+                default:
+                    return res.status(400).json({
+                        success: false,
+                        status: 400,
+                        message: "Invalid status value",
+                    });
+            }
+
+            // Update only the status
+            const updateResult = await new TaskService().updateTaskStatus(id, statusEnum);
+
+            if (updateResult === false) {
+                return res.status(500).json({
+                    success: false,
+                    status: 500,
+                    message: "Failed to update task status",
+                });
+            }
+            
+            // Get updated task for socket emission
+            const updatedTask = await new TaskService().findById(id);
+            
+            // Emit socket event for real-time updates
+            if (global.io && updatedTask) {
+                // Notify all admins
+                global.io.to('admin-room').emit('task-updated', updatedTask);
+                
+                // Notify assigned users
+                if (updatedTask.assignedUsers && updatedTask.assignedUsers.length > 0) {
+                    updatedTask.assignedUsers.forEach((user: any) => {
+                        global.io.to(`user-${user.id}`).emit('task-updated', updatedTask);
+                    });
+                }
+            }
+            
+            return res.status(200).json({
+                success: true,
+                status: 200,
+                message: "Task status updated successfully",
+                data: updatedTask,
+            });
+        } catch (error: any) {
+            return res.status(500).json({
+                success: false,
+                status: 500,
+                message: error.message || "Could not update task status",
+            });
+        }
+    }
+
     public static async updateTask (req:Request, res:Response): Promise<Response>{
         const id = req.params.id as unknown as number;
         const data = req.body;
 
         try {
+            // Validate that no admin users are being assigned to tasks
+            if (data.assignedUserIds && data.assignedUserIds.length > 0) {
+                const { UserService } = await import('../../services/userService');
+                const userService = new UserService();
+                
+                // Ensure assignedUserIds is an array
+                if (!Array.isArray(data.assignedUserIds)) {
+                    data.assignedUserIds = [data.assignedUserIds];
+                }
+                
+                for (const userId of data.assignedUserIds) {
+                    const user = await userService.findById(userId);
+                    if (user && user.role === 'admin') {
+                        return res.status(400).json({
+                            success: false,
+                            status: 400,
+                            message: `Cannot assign tasks to admin users. User ${user.firstName} ${user.lastName} is an admin.`,
+                        });
+                    }
+                }
+            }
+            
             const update = await new TaskService().updateTask(id, data);
 
             if(update === false){
@@ -320,6 +467,44 @@ export class TaskController {
                 success: false,
                 status: 500,
                 message: error.message || "Could not generate user recommendations",
+            });
+        }
+    }
+
+    public static async testEmailService(req: CustomRequestInterface, res: Response): Promise<Response> {
+        try {
+            const { EmailService } = await import('../../services/emailService');
+            const emailService = new EmailService();
+            
+            const userEmail = req.user?.email || 'test@example.com';
+            const userName = `${req.user?.firstName || 'Test'} ${req.user?.lastName || 'User'}`;
+            
+            const result = await emailService.sendTaskAssignmentEmail(
+                userEmail,
+                userName,
+                'Test Email from TaskFlow',
+                'This is a test email to verify that the email service is working correctly. If you receive this email, the email configuration is working properly.',
+                new Date(Date.now() + 24 * 60 * 60 * 1000) // Due tomorrow
+            );
+            
+            if (result) {
+                return res.status(200).json({
+                    success: true,
+                    status: 200,
+                    message: `Test email sent successfully to ${userEmail}. Check server console for preview URL (if using Ethereal Email).`,
+                });
+            } else {
+                return res.status(500).json({
+                    success: false,
+                    status: 500,
+                    message: "Failed to send test email. Check server logs for details.",
+                });
+            }
+        } catch (error: any) {
+            return res.status(500).json({
+                success: false,
+                status: 500,
+                message: error.message || "Could not send test email",
             });
         }
     }

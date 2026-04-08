@@ -5,7 +5,7 @@ import type { User, CreateUserData } from '../services/userService';
 import { Modal } from '../components/Modal';
 import { Notification } from '../components/Notification';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { Plus, Edit2, Trash2, Mail, Shield } from 'lucide-react';
+import { Plus, Edit2, Trash2, Mail, Shield, Send } from 'lucide-react';
 
 export const Users = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -25,10 +25,11 @@ export const Users = () => {
     password: '',
     role: 'user',
   });
+  const [testingEmail, setTestingEmail] = useState(false);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
-    const response = await userService.getUsers();
+    const response = await userService.getAllUsers();
     setLoading(false);
     
     if (response.data) {
@@ -129,6 +130,40 @@ export const Users = () => {
     setEditingUser(null);
   };
 
+  const handleTestEmail = async () => {
+    setTestingEmail(true);
+    try {
+      const response = await fetch('/api/v1/task/test-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setNotification({ 
+          message: data.message, 
+          type: 'success' 
+        });
+      } else {
+        setNotification({ 
+          message: data.message || 'Failed to send test email', 
+          type: 'error' 
+        });
+      }
+    } catch (error) {
+      setNotification({ 
+        message: 'Error sending test email. Check server connection.', 
+        type: 'error' 
+      });
+    } finally {
+      setTestingEmail(false);
+    }
+  };
+
   return (
     <div className="page-container">
       {notification && (
@@ -141,10 +176,20 @@ export const Users = () => {
 
       <div className="page-header">
         <h1>Users Management</h1>
-        <button onClick={() => openModal()} className="btn btn-primary">
-          <Plus size={20} />
-          Add User
-        </button>
+        <div className="page-header-actions">
+          <button 
+            onClick={handleTestEmail} 
+            className="btn btn-secondary"
+            disabled={testingEmail}
+          >
+            <Send size={20} />
+            {testingEmail ? 'Sending...' : 'Test Email'}
+          </button>
+          <button onClick={() => openModal()} className="btn btn-primary">
+            <Plus size={20} />
+            Add User
+          </button>
+        </div>
       </div>
 
       {loading ? (
